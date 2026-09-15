@@ -26,9 +26,9 @@ CREATE TABLE IF NOT EXISTS lebenslauf (
     geburtsdatum DATE NOT NULL,
 
     PRIMARY KEY (vorname, nachname, geburtsdatum)
-    FOREIGN KEY (vorname) REFERENCES gruender(vorname),
-    FOREIGN KEY (nachname) REFERENCES gruender(nachname),
-    FOREIGN KEY (geburtsdatum) REFERENCES gruender(geburtsdatum)
+    #FOREIGN KEY (vorname) REFERENCES gruender(vorname),
+    #FOREIGN KEY (nachname) REFERENCES gruender(nachname),
+    #FOREIGN KEY (geburtsdatum) REFERENCES gruender(geburtsdatum)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS ansprechpartner (
@@ -40,8 +40,8 @@ CREATE TABLE IF NOT EXISTS ansprechpartner (
     telefon VARCHAR(100),
     forschungseinrichtung VARCHAR(100),
 
-    PRIMARY KEY (vorname, nachname),
-    FOREIGN KEY (forschungseinrichtung) REFERENCES forschungseinrichtung(name)
+    PRIMARY KEY (vorname, nachname)
+    #FOREIGN KEY (forschungseinrichtung) REFERENCES forschungseinrichtung(name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS forschungseinrichtung (
