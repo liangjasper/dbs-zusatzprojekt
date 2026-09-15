@@ -20,4 +20,3 @@ CREATE TABLE IF NOT EXISTS gruender (
     PRIMARY KEY (vorname, nachname, geburtsdatum)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
