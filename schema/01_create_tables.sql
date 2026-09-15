@@ -20,3 +20,33 @@ CREATE TABLE IF NOT EXISTS gruender (
     PRIMARY KEY (vorname, nachname, geburtsdatum)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS lebenslauf (
+    vorname VARCHAR(100) NOT NULL,
+    nachname VARCHAR(100) NOT NULL,
+    geburtsdatum DATE NOT NULL,
+
+    PRIMARY KEY (vorname, nachname, geburtsdatum)
+    FOREIGN KEY (vorname) REFERENCES gruender(vorname),
+    FOREIGN KEY (nachname) REFERENCES gruender(nachname),
+    FOREIGN KEY (geburtsdatum) REFERENCES gruender(geburtsdatum)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS ansprechpartner (
+    vorname VARCHAR(100) NOT NULL,
+    nachname VARCHAR(100) NOT NULL,
+    strasse VARCHAR(100),
+    plz VARCHAR(50),
+    email VARCHAR(255) NOT NULL UNIQUE,
+    telefon VARCHAR(100),
+    forschungseinrichtung VARCHAR(100),
+
+    PRIMARY KEY (vorname, nachname),
+    FOREIGN KEY (forschungseinrichtung) REFERENCES forschungseinrichtung(name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS forschungseinrichtung (
+    name VARCHAR(100) NOT NULL,
+    url VARCHAR(100) NOT NULL,
+
+    PRIMARY KEY (name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
