@@ -216,3 +216,12 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+# JetBrains / DataGrip
+.idea/
+
+# macOS
+.DS_Store
+
+# Environment
+*.env
+*.log
