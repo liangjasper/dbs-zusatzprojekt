@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS lebenslauf (
     geburtsdatum DATE NOT NULL,
     dateipfad VARCHAR(255) NOT NULL,
 
-    -- PRIMARY KEY (vorname, nachname, geburtsdatum),
+    PRIMARY KEY (vorname, nachname, geburtsdatum),
     FOREIGN KEY (vorname, nachname, geburtsdatum)
         REFERENCES gruender(vorname, nachname, geburtsdatum) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -115,40 +115,42 @@ CREATE TABLE IF NOT EXISTS gruendungsidee (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS notiz (
-    dateipfad VARCHAR(255) NOT NULL,
     antrag_id INT,
+    zeitstempel TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    inhalt TEXT NOT NULL,
+    dateipfad VARCHAR(255),
 
     FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS exist_women (
-    antrag_id INT,
+    antrag_id INT PRIMARY KEY,
 
     FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS exist_gruendungsfoerderung (
-    antrag_id INT,
+    antrag_id INT PRIMARY KEY,
 
     FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS exist_forschungstransfer (
-    antrag_id INT,
+    antrag_id INT PRIMARY KEY,
 
     FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS businessplan (
+    antrag_id INT PRIMARY KEY,
     dateipfad VARCHAR(255) NOT NULL,
-    antrag_id INT,
 
     FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS projektbeschreibung (
+    antrag_id INT PRIMARY KEY,
     dateipfad VARCHAR(255) NOT NULL,
-    antrag_id INT,
 
     FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
