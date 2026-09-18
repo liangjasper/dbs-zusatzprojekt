@@ -1,4 +1,4 @@
-DROP DATABASE IF EXISTS exist_db;
+-- DROP DATABASE IF EXISTS exist_db;
 
 CREATE DATABASE IF NOT EXISTS exist_db
     DEFAULT CHARACTER SET utf8mb4
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS lebenslauf (
     geburtsdatum DATE NOT NULL,
     dateipfad VARCHAR(255) NOT NULL,
 
-    PRIMARY KEY (vorname, nachname, geburtsdatum),
+    -- PRIMARY KEY (vorname, nachname, geburtsdatum),
     FOREIGN KEY (vorname, nachname, geburtsdatum)
         REFERENCES gruender(vorname, nachname, geburtsdatum) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -105,4 +105,51 @@ CREATE TABLE IF NOT EXISTS antrag (
         REFERENCES bearbeiter(bearbeiter_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS gruendungsidee (
+    titel VARCHAR(100) NOT NULL PRIMARY KEY,
+    bereich VARCHAR(100) NOT NULL,
+    unternehmen VARCHAR(100) NOT NULL,
+    antrag_id INT,
+
+    FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS notiz (
+    dateipfad VARCHAR(255) NOT NULL,
+    antrag_id INT,
+
+    FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS exist_women (
+    antrag_id INT,
+
+    FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS exist_gruendungsfoerderung (
+    antrag_id INT,
+
+    FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS exist_forschungstransfer (
+    antrag_id INT,
+
+    FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS businessplan (
+    dateipfad VARCHAR(255) NOT NULL,
+    antrag_id INT,
+
+    FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS projektbeschreibung (
+    dateipfad VARCHAR(255) NOT NULL,
+    antrag_id INT,
+
+    FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
