@@ -41,11 +41,21 @@ CREATE TABLE IF NOT EXISTS gruender (
     FOREIGN KEY (team_id) REFERENCES gruendungsteam(team_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS dokumente (
+    dokument_id INT AUTO_INCREMENT PRIMARY KEY,
+    dateiname VARCHAR(255) NOT NULL,
+    dateityp VARCHAR(100),
+    datei LONGBLOB NOT NULL,
+    hochgeladen_am DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS lebenslauf (
     gruender_id INT PRIMARY KEY,
-    dateipfad VARCHAR(255) NOT NULL,
+    -- dateipfad VARCHAR(255) NOT NULL,
+    dokument_id INT NOT NULL,
 
-    FOREIGN KEY (gruender_id) REFERENCES gruender(gruender_id) ON DELETE CASCADE
+    FOREIGN KEY (gruender_id) REFERENCES gruender(gruender_id) ON DELETE CASCADE,
+    FOREIGN KEY (dokument_id) REFERENCES dokumente(dokument_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS ansprechpartner (
@@ -106,10 +116,12 @@ CREATE TABLE IF NOT EXISTS notiz (
     antrag_id INT,
     zeitstempel TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     inhalt TEXT NOT NULL,
-    dateipfad VARCHAR(255),
+    -- dateipfad VARCHAR(255),
+    dokument_id INT,
 
     PRIMARY KEY (antrag_id, zeitstempel),
-    FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE
+    FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE,
+    FOREIGN KEY (dokument_id) REFERENCES dokumente(dokument_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS exist_women (
@@ -129,12 +141,17 @@ CREATE TABLE IF NOT EXISTS exist_forschungstransfer (
 
 CREATE TABLE IF NOT EXISTS businessplan (
     antrag_id INT PRIMARY KEY,
-    dateipfad VARCHAR(255) NOT NULL,
-    FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE
+    -- dateipfad VARCHAR(255) NOT NULL,
+    dokument_id INT NOT NULL,
+    FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE,
+    FOREIGN KEY (dokument_id) REFERENCES dokumente(dokument_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS projektbeschreibung (
     antrag_id INT PRIMARY KEY,
-    dateipfad VARCHAR(255) NOT NULL,
-    FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE
+    -- dateipfad VARCHAR(255) NOT NULL,
+    dokument_id INT NOT NULL,
+    FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE,
+    FOREIGN KEY (dokument_id) REFERENCES dokumente(dokument_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
