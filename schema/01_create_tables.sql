@@ -109,8 +109,13 @@ CREATE TABLE IF NOT EXISTS benutzer (
 CREATE TABLE IF NOT EXISTS antrag (
     antrag_id INT AUTO_INCREMENT PRIMARY KEY,
     gruendungstitel VARCHAR(150),
-    status ENUM('eingereicht', 'in_pruefung', 'bewilligt', 'abgelehnt') NOT NULL DEFAULT 'eingereicht',
+    status ENUM('eingereicht', 'in_pruefung', 'in_korrektur', 'bewilligt', 'abgelehnt') NOT NULL DEFAULT 'eingereicht',
+    programm ENUM('exist_women', 'exist_gruendungsfoerderung', 'exist_forschungstransfer') NOT NULL,
     einreichungsdatum DATE NOT NULL,
+
+    zuletzt_aktualisiert DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    antragsformular_id INT,
+
     mentor_id INT,
     team_id INT,
     bearbeiter_id INT,
@@ -119,7 +124,8 @@ CREATE TABLE IF NOT EXISTS antrag (
     FOREIGN KEY (einrichtung_id) REFERENCES forschungseinrichtung(einrichtung_id),
     FOREIGN KEY (mentor_id) REFERENCES mentor(mentor_id) ON DELETE SET NULL,
     FOREIGN KEY (team_id) REFERENCES gruendungsteam(team_id) ON DELETE CASCADE,
-    FOREIGN KEY (bearbeiter_id) REFERENCES bearbeiter(bearbeiter_id) ON DELETE SET NULL
+    FOREIGN KEY (bearbeiter_id) REFERENCES bearbeiter(bearbeiter_id) ON DELETE SET NULL,
+    FOREIGN KEY (antragsformular_id) REFERENCES dokumente(dokument_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS gruendungsidee (
@@ -143,21 +149,45 @@ CREATE TABLE IF NOT EXISTS notiz (
     FOREIGN KEY (dokument_id) REFERENCES dokumente(dokument_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS antrag_status_historie (
+    historie_id INT AUTO_INCREMENT PRIMARY KEY,
+    antrag_id INT NOT NULL,
+    bearbeiter_id INT,
+    alter_status ENUM('eingereicht', 'in_pruefung', 'in_korrektur', 'bewilligt', 'abgelehnt'),
+    neuer_status ENUM('eingereicht', 'in_pruefung', 'in_korrektur', 'bewilligt', 'abgelehnt') NOT NULL,
+    aenderungsdatum DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (antrag_id) REFERENCES antrag(antrag_id) ON DELETE CASCADE,
+    FOREIGN KEY (bearbeiter_id) REFERENCES bearbeiter(bearbeiter_id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS exist_women (
     antrag_id INT PRIMARY KEY,
-    FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE
+    motivationspapier_id INT,
+
+    FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE,
+    FOREIGN KEY (motivationspapier_id) REFERENCES dokumente(dokument_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS exist_gruendungsfoerderung (
     antrag_id INT PRIMARY KEY,
-    FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE
+    ideenpapier_id INT,
+
+    FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE,
+    FOREIGN KEY (ideenpapier_id) REFERENCES dokumente(dokument_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS exist_forschungstransfer (
     antrag_id INT PRIMARY KEY,
-    FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE
+    projektbeschreibung_id INT,
+    businessplan_id INT,
+
+    FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE,
+    FOREIGN KEY (projektbeschreibung_id) REFERENCES dokumente(dokument_id) ON DELETE SET NULL,
+    FOREIGN KEY (businessplan_id) REFERENCES dokumente(dokument_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+/*
 CREATE TABLE IF NOT EXISTS businessplan (
     antrag_id INT PRIMARY KEY,
     -- dateipfad VARCHAR(255) NOT NULL,
@@ -173,4 +203,6 @@ CREATE TABLE IF NOT EXISTS projektbeschreibung (
     FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE,
     FOREIGN KEY (dokument_id) REFERENCES dokumente(dokument_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+*/
+
 
