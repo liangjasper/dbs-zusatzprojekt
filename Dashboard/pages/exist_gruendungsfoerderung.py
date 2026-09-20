@@ -1,13 +1,10 @@
 import streamlit as st
-import mysql.connector
-import os
 from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
 from dotenv import load_dotenv
-from numpy.ma.core import min_val
+from database.connection import get_connection
 
 load_dotenv()
-
 form_value = {
     "Vorname": None
     ,"Nachname": None
@@ -24,16 +21,6 @@ form_value = {
 legal_age=datetime.now().date()-relativedelta(years=18)
 
 st.title("EXIST-Gründungsstipendien")
-tab1,tab2,tab3,tab4 =st.tabs(["Startseite","exist Grüdungsförderung", "exist Women", "exist Forschungstransfer"])
-with tab1:
-    st.header("exist")
-with tab2:
-    st.header("exist Gründungsförderung")
-with tab3:
-    st.header("exist Women")
-with tab4:
-    st.header("exist Forschungstransfer")
-
 
 
 
@@ -46,7 +33,7 @@ with st.form(key="gruender_form"):
     form_value["Email"] = st.text_input("Email")
     form_value["Telefon"] = st.text_input("Telefon")
     form_value["Nationalitaet"] = st.text_input("Nationalität")
-    form_value["Anzahl_kinder"]=st.selectbox("Anzahl der kinder",[0,1,2,3,4,5,6,7,8,9])
+    form_value["Anzahl_kinder"]=st.selectbox("Anzahl der kinder",[None,0,1,2,3,4,5,6,7,8,9])
     form_value["Hochschulstatus"]=st.selectbox("Hochschulstatus", ["","StudentIn", "AbsolventIn"])
     form_value["Team_id"] = st.text_input("Team Id")
     submit_button = st.form_submit_button()
@@ -56,12 +43,7 @@ with st.form(key="gruender_form"):
                 st.warning("Bitte alle Felder ausfüllen")
             else:
                 st.success("Dokument erfolgreich eingereicht")
-                connection = mysql.connector.connect(
-                    host=os.getenv("DB_HOST"),
-                    user=os.getenv("DB_USER"),
-                    password=os.getenv("DB_PASSWORD"),
-                    database=os.getenv("DB_NAME"),
-                )
+                connection = get_connection()
                 cursor = connection.cursor()
 
                 sql = """
