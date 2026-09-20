@@ -87,6 +87,25 @@ CREATE TABLE IF NOT EXISTS bearbeiter (
     email VARCHAR(255) NOT NULL UNIQUE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS benutzer (
+    benutzer_id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    passwort VARCHAR(255) NOT NULL,
+    rolle ENUM('forschungseinrichtung', 'gruenderteam', 'bearbeiter') NOT NULL,
+
+    einrichtung_id INT,
+    team_id INT,
+    bearbeiter_id INT,
+
+    erstellt_am DATETIME DEFAULT CURRENT_TIMESTAMP,
+    letzter_login DATETIME,
+    ist_aktiv BOOLEAN DEFAULT TRUE,
+
+    FOREIGN KEY (einrichtung_id) REFERENCES forschungseinrichtung(einrichtung_id) ON DELETE CASCADE,
+    FOREIGN KEY (team_id) REFERENCES gruendungsteam(team_id) ON DELETE CASCADE,
+    FOREIGN KEY (bearbeiter_id) REFERENCES bearbeiter(bearbeiter_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS antrag (
     antrag_id INT AUTO_INCREMENT PRIMARY KEY,
     gruendungstitel VARCHAR(150),
