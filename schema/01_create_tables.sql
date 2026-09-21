@@ -205,7 +205,7 @@ CREATE TABLE IF NOT EXISTS projektbeschreibung (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 */
 
-CREATE VIEW view_antrag_uebersicht AS
+CREATE OR REPLACE VIEW view_antrag_uebersicht AS
 SELECT
     a.antrag_id,
     a.gruendungstitel AS titel,
