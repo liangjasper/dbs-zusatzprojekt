@@ -205,4 +205,15 @@ CREATE TABLE IF NOT EXISTS projektbeschreibung (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 */
 
+CREATE VIEW view_antrag_uebersicht AS
+SELECT
+    a.antrag_id,
+    a.gruendungstitel AS titel,
+    a.programm,
+    a.status,
+    a.einreichungsdatum,
+    f.name AS forschungseinrichtung_name
+FROM antrag a
+LEFT JOIN forschungseinrichtung f ON a.einrichtung_id = f.einrichtung_id;
+
 
