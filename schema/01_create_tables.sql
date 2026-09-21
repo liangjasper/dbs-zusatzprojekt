@@ -216,4 +216,9 @@ SELECT
 FROM antrag a
 LEFT JOIN forschungseinrichtung f ON a.einrichtung_id = f.einrichtung_id;
 
+CREATE INDEX idx_antrag_status ON antrag(status);
+
+CREATE INDEX idx_gruender_nachname ON gruender(nachname);
+
+
 
