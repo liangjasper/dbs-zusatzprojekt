@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from database.connection import get_connection
 import mysql.connector
 
+#Formular für die Gründungsförderung
 load_dotenv()
 form_value = {
     "Vorname": None
@@ -39,7 +40,7 @@ with st.form(key="gruender_form"):
     form_value["Team_id"] = st.text_input("Team Id")
 
     submit_button = st.form_submit_button()
-
+#Wenn der submit Button gedrückt wird, wird in der exist_gruendungsfoerderungstabelle ein eintrag angelegt. vorher wird noch das Alter geprüft und ob alle Felder ausgefüllt wurden
     if submit_button:
         if form_value["Geburtsdatum"]<legal_age:
             if not all(form_value.values()):
@@ -75,6 +76,8 @@ with st.form(key="gruender_form"):
         else:
             st.warning("Bitte prüfe dein Alter. Einreichungen sind nur ab 18 Jahren möglich")
 
+
+#Uploader für Files welche benötigt werden um das Formular zu verfollständigen. Z.B. Lebenslauf
 uploaded_file = st.file_uploader(
     "Dokument hochladen",
     type=["pdf", "docx", "png", "jpg"]
