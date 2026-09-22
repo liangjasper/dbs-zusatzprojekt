@@ -77,7 +77,7 @@ with st.form(key="gruender_form"):
             st.warning("Bitte prüfe dein Alter. Einreichungen sind nur ab 18 Jahren möglich")
 
 
-#Uploader für Files welche benötigt werden um das Formular zu verfollständigen. Z.B. Lebenslauf
+#Uploader für Files welche benötigt werden um das Formular zu vervollständigen. Z.B. Lebenslauf
 uploaded_file = st.file_uploader(
     "Dokument hochladen",
     type=["pdf", "docx", "png", "jpg"]

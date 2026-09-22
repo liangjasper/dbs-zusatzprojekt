@@ -29,7 +29,7 @@ if not st.session_state.get("eingeloggt", False):
             cursor = connection.cursor()
             sql = """
                 UPDATE benutzer
-                SET letzer_login = now()
+                SET letzter_login = now()
                 WHERE benutzer_id = %s
             """
             cursor.execute(sql, (benutzer["benutzer_id"],))

@@ -6,10 +6,10 @@ st.set_page_config(
 )
 
 #checkt den eingeloggt Status und zeigt die entsprechenden Daten des Eingeloggten
-if st.session_state.get("eingeloggt",False):
-    st.write("Benutzer: ", st.session_state["benutzer_id"])
-    st.write("Email: ", st.session_state["email"])
-    st.write("Rolle: ",st.session_state["rolle"])
+#if st.session_state.get("eingeloggt",False):
+#    st.write("Benutzer: ", st.session_state["benutzer_id"])
+#    st.write("Email: ", st.session_state["email"])
+#    st.write("Rolle: ",st.session_state["rolle"])
 
 #falls nicht eingeloggt werden formulare gezeigt. Falls eingeloggt wird eine andere Seite gezeigt
 if not st.session_state.get("eingeloggt", False):
