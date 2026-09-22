@@ -161,17 +161,19 @@ INSERT INTO antrag_status_historie (antrag_id, bearbeiter_id, alter_status, neue
 -- ---------------------------------------------------------------------
 -- 14. Benutzerkonten und Rollenverwaltung (RBAC)
 -- ---------------------------------------------------------------------
-INSERT INTO benutzer (benutzer_id, email, passwort, rolle, einrichtung_id, team_id, bearbeiter_id, ist_aktiv) VALUES
--- Zugänge für Forschungseinrichtungen
-(1, 'sabine.neumann@hu-berlin.de', 'PasswordHash#HU2026!', 'forschungseinrichtung', 1, NULL, NULL, TRUE),
-(2, 'markus.zimmermann@tu-berlin.de', 'PasswordHash#TU2026!', 'forschungseinrichtung', 2, NULL, NULL, TRUE),
+INSERT INTO benutzer (benutzer_id, email, passwort, rolle, ansprechpartner_id, gruender_id, bearbeiter_id, ist_aktiv) VALUES
+-- Zugänge für Ansprechpartner (ehemals Forschungseinrichtungen)
+(1, 'sabine.neumann@hu-berlin.de', 'PasswordHash#HU2026!', 'ansprechpartner', 1, NULL, NULL, TRUE),
+(2, 'markus.zimmermann@tu-berlin.de', 'PasswordHash#TU2026!', 'ansprechpartner', 2, NULL, NULL, TRUE),
 
--- Zugänge für Gründerteams
-(3, 'clara.richter@gmail.com', 'TeamHash#Women2026', 'gruenderteam', NULL, 1, NULL, TRUE),
-(4, 'lukas.weber@outlook.com', 'TeamHash#Green2026', 'gruenderteam', NULL, 2, NULL, TRUE),
-(5, 'elena.hoffmann@tum-lab.de', 'TeamHash#Quantum2026', 'gruenderteam', NULL, 3, NULL, TRUE),
+-- Zugänge für Gründer:innen (ehemals Gründerteams)
+(3, 'clara.richter@gmail.com', 'TeamHash#Women2026', 'gruender', NULL, 1, NULL, TRUE),
+(4, 'lukas.weber@outlook.com', 'TeamHash#Green2026', 'gruender', NULL, 2, NULL, TRUE),
+-- 注意：Dr. Elena Hoffmann 在第 6 節的設定中是 gruender_id = 4
+(5, 'elena.hoffmann@tum-lab.de', 'TeamHash#Quantum2026', 'gruender', NULL, 4, NULL, TRUE),
 
--- Zugänge für PtJ-Bearbeiter:innen
+-- Zugänge für PtJ-Bearbeiter:innen (bleibt unverändert)
 (6, 'michael.braun@ptj.de', 'AdminSecure#PtJ2026', 'bearbeiter', NULL, NULL, 1, TRUE),
 (7, 'katharina.koch@ptj.de', 'AdminSecure#PtJ2026b', 'bearbeiter', NULL, NULL, 2, TRUE);
+
 
