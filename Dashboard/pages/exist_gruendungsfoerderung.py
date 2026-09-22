@@ -3,6 +3,7 @@ from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
 from dotenv import load_dotenv
 from database.connection import get_connection
+import mysql.connector
 
 load_dotenv()
 form_value = {
@@ -36,7 +37,9 @@ with st.form(key="gruender_form"):
     form_value["Anzahl_kinder"]=st.selectbox("Anzahl der kinder",[None,0,1,2,3,4,5,6,7,8,9])
     form_value["Hochschulstatus"]=st.selectbox("Hochschulstatus", ["","StudentIn", "AbsolventIn"])
     form_value["Team_id"] = st.text_input("Team Id")
+
     submit_button = st.form_submit_button()
+
     if submit_button:
         if form_value["Geburtsdatum"]<legal_age:
             if not all(form_value.values()):
@@ -47,8 +50,18 @@ with st.form(key="gruender_form"):
                 cursor = connection.cursor()
 
                 sql = """
-                      INSERT INTO gruender (vorname , nachname, geburtsdatum, strasse, plz, email, telefon, \
-                                            nationalitaet, anzahl_kinder, hochschulstatus, team_id)
+                      INSERT INTO gruender (
+                          vorname,
+                          nachname,
+                          geburtsdatum,
+                          strasse,
+                          plz,
+                          email,
+                          telefon,
+                          nationalitaet,
+                          anzahl_kinder,
+                          hochschulstatus,
+                          team_id)
                       VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) \
                       """
 
@@ -69,6 +82,8 @@ uploaded_file = st.file_uploader(
 
 if uploaded_file is not None:
     st.success(f"{uploaded_file.name} wurde hochgeladen!")
+    connection = get_connection()
+    cursor = connection.cursor()
 
     sql = """
         INSERT INTO dokumente (

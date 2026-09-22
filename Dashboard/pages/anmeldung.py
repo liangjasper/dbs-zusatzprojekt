@@ -1,30 +1,41 @@
 import streamlit as st
-from database.benutzer import benutzer_anmelden
+from database.benutzer import benutzer_anmelden, forschungseinrichtung_anlegen, bearbeiter_anlegen
 from database.benutzer import benutzer_anlegen
+from pages.exist_gruendungsfoerderung import cursor
 
 st.title("Anmeldung")
-email = st.text_input("E-Mail")
-passwort = st.text_input(
+
+
+if not st.session_state.get("eingeloggt", False):
+    email = st.text_input("E-Mail")
+    passwort = st.text_input(
     "Passwort",
-    type="password"
-)
-
-if st.button("Anmelden"):
-    benutzer = benutzer_anmelden(
-        email,
-        passwort
+    type = "password"
     )
-    if benutzer is not None:
-        st.session_state["eingeloggt"] = True
-        st.session_state["benutzer_id"] = benutzer["id"]
-        st.session_state["email"] = benutzer["email"]
-
-        st.success("Erfolgreich angemeldet!")
-        st.rerun()
-    else:
-        st.error(
-            "E-Mail oder Passwort ist falsch."
+    if st.button("Anmelden"):
+        benutzer = benutzer_anmelden(
+            email,
+            passwort
         )
+        st.write("Benutzer gefunden:", benutzer)
+        if benutzer is not None:
+            st.session_state["eingeloggt"] = True
+            st.session_state["benutzer_id"] = benutzer["benutzer_id"]
+            st.session_state["email"] = benutzer["email"]
+            st.session_state["rolle"] = benutzer["rolle"]
+            sql = """
+                UPDATE benutzer
+                SET letzer_login = now()
+                WHERE benutzer_id = %s
+            """
+            cursor.execute(sql, (benutzer["benutzer_id"],))
+            st.rerun()
+        else:
+            st.error(
+                "E-Mail oder Passwort ist falsch."
+            )
+else:
+    st.success(f"Erfolgreich angemeldet mit {st.session_state['email']}")
 
 st.title("Registrieren")
 email_registrierung = st.text_input("E-Mail1")
@@ -32,8 +43,35 @@ passwort_registrierung = st.text_input(
     "Passwort1",
     type="password"
 )
+rolle_registrierung = st.selectbox("Rolle", ["forschungseinrichtung", "gruenderteam", "bearbeiter"])
+if rolle_registrierung == "forschungseinrichtung":
+    url_registrierung = st.text_input("Url")
+    name_registrierung = st.text_input("Name")
+
+if rolle_registrierung == "bearbeiter":
+    vorname_registrierung = st.text_input("Vorname")
+    nachname_registrierung = st.text_input("Nachname")
+
 if st.button("Registrieren"):
-    benutzer_anlegen(
-        email_registrierung,
-        passwort_registrierung
-    )
+    if rolle_registrierung == "forschungseinrichtung":
+        forschungseinrichtung_anlegen(
+            name_registrierung,
+            url_registrierung,
+            email_registrierung,
+            passwort_registrierung,
+            rolle_registrierung,
+        )
+        st.success("Registrierung der Forschungseinrichtung erfolgreich")
+
+    if rolle_registrierung == "bearbeiter":
+        bearbeiter_anlegen(
+            vorname_registrierung,
+            nachname_registrierung,
+            email_registrierung,
+            passwort_registrierung,
+            rolle_registrierung,
+        )
+        st.success("Registrierung als Bearbeiter/in erfolgreich")
+
+    if rolle_registrierung == "gruenderteam":
+        st.warning("Noch nicht implementiert")
