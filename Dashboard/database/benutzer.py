@@ -39,6 +39,52 @@ def forschungseinrichtung_anlegen(name, url,email, passwort, rolle,):
     connection.close()
 
 
+def gruender_anlegen(form_value,email,passwort,rolle):
+    connection=get_connection()
+    cursor =connection.cursor()
+
+    sql = """
+          INSERT INTO gruender (
+              vorname,
+              nachname,
+              geburtsdatum,
+              strasse,
+              plz,
+              email,
+              telefon,
+              nationalitaet,
+              anzahl_kinder,
+              hochschulstatus
+          )
+          VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
+          """
+
+    cursor.execute(sql,(
+        form_value["Vorname"], form_value["Nachname"], form_value["Geburtsdatum"], form_value["Strasse"],
+        form_value["Plz"], form_value["Email"], form_value["Telefon"], form_value["Nationalitaet"],
+        form_value["Anzahl_kinder"], form_value["Hochschulstatus"])
+        )
+    gruender_id = cursor.lastrowid
+    sql = """
+        INSERT INTO benutzer (
+            email,
+            passwort,
+            rolle,
+            gruender_id
+        )
+        VALUES (%s, %s, %s, %s)
+    """
+
+    cursor.execute(sql, (
+        email,
+        passwort,
+        rolle,
+        gruender_id
+    ))
+    connection.commit()
+    cursor.close()
+    connection.close()
+
 def bearbeiter_anlegen(vorname,nachname,email, passwort, rolle):
 
     connection=get_connection()
