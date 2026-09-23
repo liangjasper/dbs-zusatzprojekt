@@ -1,5 +1,5 @@
 import streamlit as st
-from database.benutzer import benutzer_anmelden, forschungseinrichtung_anlegen, bearbeiter_anlegen, gruender_anlegen
+from database.benutzer import benutzer_anmelden, ansprechpartner_anlegen, bearbeiter_anlegen, gruender_anlegen
 from database.benutzer import benutzer_anlegen
 from database.connection import get_connection
 from datetime import datetime, date
@@ -23,6 +23,7 @@ if not st.session_state.get("eingeloggt", False):
         if benutzer is not None:
             st.session_state["eingeloggt"] = True
             st.session_state["benutzer_id"] = benutzer["benutzer_id"]
+            st.session_state["team_id"] = benutzer["team_id"]
             st.session_state["email"] = benutzer["email"]
             st.session_state["rolle"] = benutzer["rolle"]
 
@@ -46,15 +47,15 @@ if not st.session_state.get("eingeloggt", False):
 else:
     st.success(f"Erfolgreich angemeldet mit {st.session_state['email']}")
 
-#Registriert einen neuen Benutzer je nach eingetragener Rolle. Ein Eintrag in einer der Tabellen von "forschungseinrichtung", "gruenderteam", "bearbeiter" wird erstellt und die ID wird mit in die benutzer Tabelle übernommen und ein Eintrag angelegt
+#Registriert einen neuen Benutzer je nach eingetragener Rolle. Ein Eintrag in einer der Tabellen von "Ansprechpartner", "gruenderteam", "bearbeiter" wird erstellt und die ID wird mit in die benutzer Tabelle übernommen und ein Eintrag angelegt
 st.title("Registrieren")
 email_registrierung = st.text_input("E-Mail1")
 passwort_registrierung = st.text_input(
     "Passwort1",
     type="password"
 )
-rolle_registrierung = st.selectbox("Rolle", ["forschungseinrichtung", "Gründer", "bearbeiter"])
-if rolle_registrierung == "forschungseinrichtung":
+rolle_registrierung = st.selectbox("Rolle", ["Ansprechpartner", "gruender", "bearbeiter"])
+if rolle_registrierung == "Ansprechpartner":
     url_registrierung = st.text_input("Url")
     name_registrierung = st.text_input("Name")
 
@@ -77,7 +78,7 @@ form_value = {
     ,"Team_id": None
 }
 
-if rolle_registrierung == "Gründer":
+if rolle_registrierung == "gruender":
     form_value["Vorname"] = st.text_input("Vorname")
     form_value["Nachname"] = st.text_input("Nachname")
     form_value["Geburtsdatum"] = st.date_input("Geburtsdatum", None, min_value=date(1900, 1, 1),
@@ -91,15 +92,15 @@ if rolle_registrierung == "Gründer":
     form_value["Hochschulstatus"] = st.selectbox("Hochschulstatus", ["", "StudentIn", "AbsolventIn"])
 
 if st.button("Registrieren"):
-    if rolle_registrierung == "forschungseinrichtung":
-        forschungseinrichtung_anlegen(
+    if rolle_registrierung == "Ansprechpartner":
+        ansprechpartner_anlegen(
             name_registrierung,
             url_registrierung,
             email_registrierung,
             passwort_registrierung,
             rolle_registrierung,
         )
-        st.success("Registrierung der Forschungseinrichtung erfolgreich")
+        st.success("Registrierung als Ansprechpartner erfolgreich")
 
     if rolle_registrierung == "bearbeiter":
         bearbeiter_anlegen(
@@ -111,11 +112,11 @@ if st.button("Registrieren"):
         )
         st.success("Registrierung als Bearbeiter/in erfolgreich")
 
-    if rolle_registrierung == "Gründer":
+    if rolle_registrierung == "gruender":
         gruender_anlegen(
             form_value,
             email_registrierung,
             passwort_registrierung,
             rolle_registrierung
         )
-        st.warning("Noch nicht implementiert")
+        st.success("Registrierung als Gründer erfolgreich")

@@ -19,18 +19,6 @@ if not st.session_state.get("eingeloggt", False):
             title="Startseite"
         ),
         st.Page(
-            "pages/exist_gruendungsfoerderung.py",
-            title="Gründungsförderung",
-        ),
-        st.Page(
-            "pages/exist_women.py",
-            title="EXIST Women",
-        ),
-        st.Page(
-            "pages/exist_forschungstransfer.py",
-            title="Forschungstransfer"
-        ),
-        st.Page(
             "pages/anmeldung.py",
             title="Anmeldung"
         )
@@ -39,9 +27,17 @@ else:
     pages = [
         st.Page(
             "pages/profile.py",
-            title="Daten und tabellen"
+            title="Profil"
         )
     ]
+
+if st.session_state.get("rolle") == "ansprechpartner":
+    pages.extend([
+        st.Page("pages/exist_forschungstransfer.py", title="Forschungstransfer"),
+        st.Page("pages/exist_gruendungsfoerderung.py", title="Gründungsförderung"),
+        st.Page("pages/exist_women.py", title="EXIST Women")
+    ])
+
 
 pg = st.navigation(
     pages,

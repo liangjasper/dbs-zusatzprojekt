@@ -1,6 +1,6 @@
 from database.connection import get_connection
 
-def forschungseinrichtung_anlegen(name, url,email, passwort, rolle,):
+def ansprechpartner_anlegen(name, url,email, passwort, rolle,):
 
     connection = get_connection()
     cursor = connection.cursor()
@@ -22,7 +22,7 @@ def forschungseinrichtung_anlegen(name, url,email, passwort, rolle,):
             email,
             passwort,
             rolle,
-            einrichtung_id
+            ansprechpartner_id
         )
         VALUES (%s, %s, %s, %s)
     """
@@ -42,7 +42,6 @@ def forschungseinrichtung_anlegen(name, url,email, passwort, rolle,):
 def gruender_anlegen(form_value,email,passwort,rolle):
     connection=get_connection()
     cursor =connection.cursor()
-
     sql = """
           INSERT INTO gruender (
               vorname,

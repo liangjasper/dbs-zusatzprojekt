@@ -1,2 +1,2 @@
 
-# Queries für Anträge und alle dazugehörigen Tabellen
+# Inserts für Anträge und alle dazugehörigen Tabellen

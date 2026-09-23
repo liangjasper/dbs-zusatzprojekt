@@ -4,6 +4,7 @@ from dateutil.relativedelta import relativedelta
 from dotenv import load_dotenv
 from database.connection import get_connection
 import mysql.connector
+from components.upload import uploade_file
 
 #Formular für die Gründungsförderung
 load_dotenv()
@@ -79,30 +80,15 @@ with st.form(key="gruender_form"):
 
 #Uploader für Files welche benötigt werden um das Formular zu vervollständigen. Z.B. Lebenslauf
 uploaded_file = st.file_uploader(
-    "Dokument hochladen",
-    type=["pdf", "docx", "png", "jpg"]
-)
+        "Dokumente hochladen",
+        type=["pdf", "docx", "png", "jpg"]
+    )
 
 if uploaded_file is not None:
     st.success(f"{uploaded_file.name} wurde hochgeladen!")
-    connection = get_connection()
-    cursor = connection.cursor()
 
-    sql = """
-        INSERT INTO dokumente (
-            dateiname,
-            dateityp,
-            datei
-        )
-        VALUES (%s, %s, %s)
-    """
+    # Funktion aus der neuen Datei aufrufen
+    success = uploade_file(uploaded_file, get_connection)
 
-    cursor.execute(sql, (
-        uploaded_file.name,
-        uploaded_file.type,
-        bytes(uploaded_file.getbuffer())
-    ))
-
-    connection.commit()
-
-    st.success("Dokument wurde gespeichert!")
+    if success:
+        st.success("Dokument wurde erfolgreich in der Datenbank gespeichert!")
