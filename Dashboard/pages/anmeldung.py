@@ -89,7 +89,17 @@ if rolle_registrierung == "gruender":
     form_value["Telefon"] = st.text_input("Telefon")
     form_value["Nationalitaet"] = st.text_input("Nationalität")
     form_value["Anzahl_kinder"] = st.selectbox("Anzahl der kinder", [None, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-    form_value["Hochschulstatus"] = st.selectbox("Hochschulstatus", ["", "StudentIn", "AbsolventIn"])
+    form_value["Hochschulstatus"] = st.selectbox(
+        "Hochschulstatus",
+        [
+            "",
+            "StudentIn",
+            "AbsolventIn",
+            "Promovierende/r",
+            "Wissenschaftliche/r MitarbeiterIn",
+            "Postdoc / GruppenleiterIn",
+        ],
+    )
 
 if st.button("Registrieren"):
     if rolle_registrierung == "Ansprechpartner":
