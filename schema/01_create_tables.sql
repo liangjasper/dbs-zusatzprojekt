@@ -1,4 +1,4 @@
--- DROP DATABASE IF EXISTS exist_db;
+DROP DATABASE IF EXISTS exist_db;
 
 CREATE DATABASE IF NOT EXISTS exist_db
     DEFAULT CHARACTER SET utf8mb4
@@ -19,7 +19,9 @@ CREATE TABLE IF NOT EXISTS forschungseinrichtung (
 
 CREATE TABLE IF NOT EXISTS gruendungsteam (
     team_id INT AUTO_INCREMENT PRIMARY KEY,
+    team_name VARCHAR(100) NOT NULL,
     einrichtung_id INT,
+
     FOREIGN KEY (einrichtung_id) REFERENCES forschungseinrichtung(einrichtung_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

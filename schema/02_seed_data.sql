@@ -46,10 +46,10 @@ INSERT INTO bearbeiter (bearbeiter_id, vorname, nachname, email) VALUES
 -- ---------------------------------------------------------------------
 -- 5. Gründungsteams
 -- ---------------------------------------------------------------------
-INSERT INTO gruendungsteam (team_id, einrichtung_id) VALUES
-(1, 2), -- Team 1 (TU Berlin) -> EXIST-Women
-(2, 1), -- Team 2 (HU Berlin) -> EXIST-Gründungsstipendium
-(3, 3); -- Team 3 (TU München) -> EXIST-Forschungstransfer
+INSERT INTO gruendungsteam (team_id, team_name, einrichtung_id) VALUES
+(1, 'FemTech Diagnostics', 2), -- Team 1 (TU Berlin) -> EXIST-Women[cite: 5]
+(2, 'GreenCycle Solutions', 1), -- Team 2 (HU Berlin) -> EXIST-Gründungsstipendium[cite: 5]
+(3, 'QuantumBit Technologies', 3); -- Team 3 (TU München) -> EXIST-Forschungstransfer[cite: 5]
 
 -- ---------------------------------------------------------------------
 -- 6. Gründer:innen (Teammitglieder und Qualifikationsstatus)
