@@ -1,6 +1,6 @@
 from database.connection import get_connection
 
-def ansprechpartner_anlegen(form_values_ansprechpartner, passwort, rolle):
+def ansprechpartner_anlegen(form_values_ansprechpartner, rolle):
 
     connection = get_connection()
     cursor = connection.cursor()
@@ -23,8 +23,6 @@ def ansprechpartner_anlegen(form_values_ansprechpartner, passwort, rolle):
         )
     ansprechpartner_id=cursor.lastrowid
 
-    print("Passwort vorhanden:", passwort is not None)
-    print("Passwort Länge:", len(passwort))
     sql = """
         INSERT INTO benutzer (
             email,
@@ -37,7 +35,7 @@ def ansprechpartner_anlegen(form_values_ansprechpartner, passwort, rolle):
 
     cursor.execute(sql, (
         form_values_ansprechpartner["Email"],
-        passwort,
+        form_values_ansprechpartner["Passwort"],
         rolle,
         ansprechpartner_id
     ))
@@ -47,7 +45,7 @@ def ansprechpartner_anlegen(form_values_ansprechpartner, passwort, rolle):
     connection.close()
 
 
-def gruender_anlegen(form_value,passwort,rolle):
+def gruender_anlegen(form_value,rolle):
     connection=get_connection()
     cursor =connection.cursor()
     sql = """
@@ -84,7 +82,7 @@ def gruender_anlegen(form_value,passwort,rolle):
 
     cursor.execute(sql, (
         form_value["Email"],
-        passwort,
+        form_value["Passwort"],
         rolle,
         gruender_id
     ))
