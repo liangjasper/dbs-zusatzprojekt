@@ -1,22 +1,30 @@
 from database.connection import get_connection
 
-def ansprechpartner_anlegen(name, url,email, passwort, rolle,):
+def ansprechpartner_anlegen(form_values_ansprechpartner, passwort, rolle):
 
     connection = get_connection()
     cursor = connection.cursor()
 
     sql = """
-        INSERT INTO forschungseinrichtung (
-            name,
-            url
-        )
-        VALUES(%s,%s)    
+        INSERT INTO ansprechpartner (
+              vorname,
+              nachname,
+              strasse,
+              plz,
+              email,
+              telefon,
+              einrichtung_id
+          )
+          VALUES (%s, %s, %s, %s, %s, %s, %s)  
     """
-    cursor.execute(sql, (
-        name,
-        url
-    ))
-    forschungseinrichtung_id = cursor.lastrowid
+    cursor.execute(sql,(
+        form_values_ansprechpartner["Vorname"], form_values_ansprechpartner["Nachname"], form_values_ansprechpartner["Strasse"],
+        form_values_ansprechpartner["Plz"], form_values_ansprechpartner["Email"], form_values_ansprechpartner["Telefon"], form_values_ansprechpartner["Einrichtung_id"])
+        )
+    ansprechpartner_id=cursor.lastrowid
+
+    print("Passwort vorhanden:", passwort is not None)
+    print("Passwort Länge:", len(passwort))
     sql = """
         INSERT INTO benutzer (
             email,
@@ -28,10 +36,10 @@ def ansprechpartner_anlegen(name, url,email, passwort, rolle,):
     """
 
     cursor.execute(sql, (
-        email,
+        form_values_ansprechpartner["Email"],
         passwort,
         rolle,
-        forschungseinrichtung_id
+        ansprechpartner_id
     ))
 
     connection.commit()
@@ -39,7 +47,7 @@ def ansprechpartner_anlegen(name, url,email, passwort, rolle,):
     connection.close()
 
 
-def gruender_anlegen(form_value,email,passwort,rolle):
+def gruender_anlegen(form_value,passwort,rolle):
     connection=get_connection()
     cursor =connection.cursor()
     sql = """
@@ -75,7 +83,7 @@ def gruender_anlegen(form_value,email,passwort,rolle):
     """
 
     cursor.execute(sql, (
-        email,
+        form_value["Email"],
         passwort,
         rolle,
         gruender_id
