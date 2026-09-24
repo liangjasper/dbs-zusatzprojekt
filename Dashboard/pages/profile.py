@@ -3,6 +3,7 @@ from database.connection import get_connection
 from components.upload import uploade_file
 import pandas as pd
 from components.build_join_team import build_team,join_team
+from database.connection import get_connection
 st.title("Profil")
 if st.button("Abmelden"):
     st.session_state["eingeloggt"] = None
@@ -18,6 +19,7 @@ st.write("Email: ", st.session_state["email"])
 st.write("Rolle: ",st.session_state["rolle"])
 st.write("Hier stehen bald weitere Perönlichen Daten")
 
+#--------------Funktionen im Profil des Gründers--------------------------------
 if st.session_state["rolle"] == "gruender":
     st.title("Team")
 
@@ -91,12 +93,54 @@ if st.session_state["rolle"] == "gruender":
         if success:
             st.success("Dokument wurde erfolgreich in der Datenbank gespeichert!")
 
+#-------------- Funktionen im Profil des Bearbeiters--------------------
 if st.session_state["rolle"] == "Bearbeiter":
     if st.button(""):
         st.warning("Funktion in bearbeitung")
     st.title("Zusammenfassungen")
     st.title("Notiz erstellen")
     st.title("")
-
+#------------- Funktionen im Profil des Ansprechpartners-----------------------------
 if st.session_state["rolle"] == "ansprechpartner":
     st.title("Mentor anlegen")
+    with st.form("mentor_form"):
+        vorname = st.text_input("Vorname")
+        nachname = st.text_input("Nachname")
+        email = st.text_input("E-Mail")
+        telefon = st.text_input("Telefon")
+
+        speichern = st.form_submit_button("Mentor speichern")
+
+        if speichern:
+            if not vorname or not nachname or not email or not telefon:
+                st.warning("Bitte alle Felder ausfüllen.")
+            else:
+                try:
+                    connection = get_connection()
+                    cursor = connection.cursor()
+
+                    sql = """
+                          INSERT INTO mentor
+                              (vorname, nachname, email, telefon)
+                          VALUES (%s, %s, %s, %s) \
+                          """
+
+                    werte = (
+                        vorname,
+                        nachname,
+                        email,
+                        telefon
+                    )
+
+                    cursor.execute(sql, werte)
+                    connection.commit()
+
+                    st.success("Mentor wurde erfolgreich angelegt.")
+
+                except Exception as e:
+                    st.error(f"Fehler beim Speichern: {e}")
+
+                finally:
+                    cursor.close()
+                    connection.close()
+
