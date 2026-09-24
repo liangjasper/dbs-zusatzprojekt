@@ -23,7 +23,6 @@ if not st.session_state.get("eingeloggt", False):
         if benutzer is not None:
             st.session_state["eingeloggt"] = True
             st.session_state["benutzer_id"] = benutzer["benutzer_id"]
-            st.session_state["team_id"] = benutzer["team_id"]
             st.session_state["email"] = benutzer["email"]
             st.session_state["rolle"] = benutzer["rolle"]
 
@@ -77,15 +76,36 @@ form_value = {
     ,"Hochschulstatus": None
     ,"Team_id": None
 }
-
+# Menü für die Dateneingabe mit der Rolle eines Gründers
 if rolle_registrierung == "gruender":
     form_value["Vorname"] = st.text_input("Vorname")
     form_value["Nachname"] = st.text_input("Nachname")
     form_value["Geburtsdatum"] = st.date_input("Geburtsdatum", None, min_value=date(1900, 1, 1),
                                                max_value=datetime.now(), format="YYYY-MM-DD")
     form_value["Strasse"] = st.text_input("Strasse")
-    form_value["Plz"] = st.text_input("Plz")
-    form_value["Email"] = st.text_input("Email")
+
+
+    #Dropdown Menü für PLZ Eingabe
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT plz, ort FROM plz_ort")
+    plz_liste = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    plz_dict = {
+        f"{row[0]} - {row[1]}": row[0]
+        for row in plz_liste
+    }
+    selected_plz_label = st.selectbox(
+        "Postleitzahl & Ort",
+        options=["Bitte wählen..."] + list(plz_dict.keys())
+    )
+    if selected_plz_label != "Bitte wählen...":
+        form_value["Plz"] = plz_dict[selected_plz_label]
+    else:
+        form_value["Plz"] = None
+
+    form_value["Email"] = email_registrierung
     form_value["Telefon"] = st.text_input("Telefon")
     form_value["Nationalitaet"] = st.text_input("Nationalität")
     form_value["Anzahl_kinder"] = st.selectbox("Anzahl der kinder", [None, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
