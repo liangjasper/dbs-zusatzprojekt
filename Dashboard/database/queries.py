@@ -1,5 +1,157 @@
 # Inserts für Anträge und alle dazugehörigen Tabellen
 
+# =====================================================================
+# 1. Benutzer & Rollen (Registrierung)
+# =====================================================================
+
+# Forschungseinrichtung anlegen
+sql = """
+    INSERT INTO forschungseinrichtung (name, url) 
+    VALUES (%s, %s)
+"""
+cursor.execute(sql, (name, url))
+
+
+# Ansprechpartner anlegen
+sql = """
+    INSERT INTO ansprechpartner (vorname, nachname, strasse, plz, email, telefon, einrichtung_id) 
+    VALUES (%s, %s, %s, %s, %s, %s, %s)
+"""
+cursor.execute(sql, (vorname, nachname, strasse, plz, email, telefon, einrichtung_id))
+
+
+# Bearbeiter anlegen (PtJ)
+sql = """
+    INSERT INTO bearbeiter (vorname, nachname, email) 
+    VALUES (%s, %s, %s)
+"""
+cursor.execute(sql, (vorname, nachname, email))
+
+
+# Benutzerkonto anlegen (Je nach Rolle eine der IDs mitgeben, der Rest ist None)
+sql = """
+    INSERT INTO benutzer (email, passwort, rolle, ansprechpartner_id, gruender_id, bearbeiter_id) 
+    VALUES (%s, %s, %s, %s, %s, %s)
+"""
+cursor.execute(sql, (email, passwort, rolle, ansprechpartner_id, gruender_id, bearbeiter_id))
+
+
+# =====================================================================
+# 2. Teams & Gründer
+# =====================================================================
+
+# Neues Gründungsteam erstellen (WICHTIG: team_name darf nicht leer sein)
+sql = """
+    INSERT INTO gruendungsteam (team_name, einrichtung_id) 
+    VALUES (%s, %s)
+"""
+cursor.execute(sql, (team_name, einrichtung_id))
+
+
+# Gründer anlegen
+sql = """
+    INSERT INTO gruender (
+        vorname, nachname, geburtsdatum, strasse, plz, 
+        email, telefon, nationalitaet, anzahl_kinder, hochschulstatus, team_id
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+"""
+cursor.execute(sql, (
+    vorname, nachname, geburtsdatum, strasse, plz,
+    email, telefon, nationalitaet, anzahl_kinder, hochschulstatus, team_id
+))
+
+
+# =====================================================================
+# 3. Dokumente (Datei-Upload)
+# =====================================================================
+
+# Dokument speichern (Binärdaten aus Streamlit)
+sql = """
+    INSERT INTO dokumente (dateiname, dateityp, datei) 
+    VALUES (%s, %s, %s)
+"""
+cursor.execute(sql, (dateiname, dateityp, datei_als_bytes))
+
+
+# Lebenslauf zu Gründer zuordnen (überschreibt alten Lebenslauf automatisch)
+sql = """
+    INSERT INTO lebenslauf (gruender_id, dokument_id) 
+    VALUES (%s, %s)
+    ON DUPLICATE KEY UPDATE dokument_id = VALUES(dokument_id)
+"""
+cursor.execute(sql, (gruender_id, dokument_id))
+
+
+# =====================================================================
+# 4. Die EXIST-Anträge (Das Kernstück)
+# =====================================================================
+
+# 1. Haupt-Antrag erstellen (Muss immer als Erstes gemacht werden)
+sql = """
+    INSERT INTO antrag (
+        gruendungstitel, status, programm, einreichungsdatum, 
+        antragsformular_id, mentor_id, team_id, bearbeiter_id, einrichtung_id
+    ) VALUES (%s, 'eingereicht', %s, CURDATE(), %s, %s, %s, %s, %s)
+"""
+cursor.execute(sql, (
+    gruendungstitel, programm, antragsformular_id, mentor_id,
+    team_id, bearbeiter_id, einrichtung_id
+))
+# Danach antrag_id holen: antrag_id = cursor.lastrowid
+
+
+# 2a. Spezifische Tabelle: EXIST-Women
+sql = """
+    INSERT INTO exist_women (antrag_id, motivationspapier_id) 
+    VALUES (%s, %s)
+"""
+cursor.execute(sql, (antrag_id, motivationspapier_id))
+
+
+# 2b. Spezifische Tabelle: EXIST-Gründungsstipendium
+sql = """
+    INSERT INTO exist_gruendungsfoerderung (antrag_id, ideenpapier_id) 
+    VALUES (%s, %s)
+"""
+cursor.execute(sql, (antrag_id, ideenpapier_id))
+
+
+# 2c. Spezifische Tabelle: EXIST-Forschungstransfer
+sql = """
+    INSERT INTO exist_forschungstransfer (antrag_id, projektbeschreibung_id, businessplan_id) 
+    VALUES (%s, %s, %s)
+"""
+cursor.execute(sql, (antrag_id, projektbeschreibung_id, businessplan_id))
+
+
+# Gründungsidee-Details hinzufügen
+sql = """
+    INSERT INTO gruendungsidee (antrag_id, titel, bereich, unternehmen) 
+    VALUES (%s, %s, %s, %s)
+"""
+cursor.execute(sql, (antrag_id, titel, bereich, unternehmen))
+
+
+# =====================================================================
+# 5. Bearbeiter-Funktionen (Audit & Notizen)
+# =====================================================================
+
+# Status-Historie speichern (Audit-Trail)
+sql = """
+    INSERT INTO antrag_status_historie (antrag_id, bearbeiter_id, alter_status, neuer_status) 
+    VALUES (%s, %s, %s, %s)
+"""
+cursor.execute(sql, (antrag_id, bearbeiter_id, alter_status, neuer_status))
+
+
+# Notiz zum Antrag hinzufügen
+sql = """
+    INSERT INTO notiz (antrag_id, inhalt, dokument_id) 
+    VALUES (%s, %s, %s)
+"""
+cursor.execute(sql, (antrag_id, inhalt, dokument_id))
+
+
 
 # Python Beispielscode:
 
