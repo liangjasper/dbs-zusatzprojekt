@@ -121,7 +121,6 @@ if rolle_registrierung == "bearbeiter":
 
 # Menü für die Dateneingabe mit der Rolle eines Gründers
 if rolle_registrierung == "gruender":
-    # 修正：正確綁定 Email 與密碼
     form_value["Email"] = st.text_input("E-Mail1")
     form_value["Passwort"] = st.text_input(
         "Passwort1",
