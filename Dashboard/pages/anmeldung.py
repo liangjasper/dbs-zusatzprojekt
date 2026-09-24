@@ -121,11 +121,13 @@ if rolle_registrierung == "bearbeiter":
 
 # Menü für die Dateneingabe mit der Rolle eines Gründers
 if rolle_registrierung == "gruender":
-    form_value["Passwort"] = st.text_input("E-Mail1")
-    passwort_registrierung = st.text_input(
+    # 修正：正確綁定 Email 與密碼
+    form_value["Email"] = st.text_input("E-Mail1")
+    form_value["Passwort"] = st.text_input(
         "Passwort1",
         type="password"
     )
+
     form_value["Vorname"] = st.text_input("Vorname")
     form_value["Nachname"] = st.text_input("Nachname")
     form_value["Geburtsdatum"] = st.date_input("Geburtsdatum", None, min_value=date(1900, 1, 1),
@@ -153,7 +155,6 @@ if rolle_registrierung == "gruender":
     else:
         form_value["Plz"] = None
 
-    form_value["Email"] = email_registrierung
     form_value["Telefon"] = st.text_input("Telefon")
     form_value["Nationalitaet"] = st.text_input("Nationalität")
     form_value["Anzahl_kinder"] = st.selectbox("Anzahl der kinder", [None, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
