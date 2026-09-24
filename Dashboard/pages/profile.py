@@ -2,7 +2,7 @@ import streamlit as st
 from database.connection import get_connection
 from components.upload import uploade_file
 import pandas as pd
-from components.build_join_team import build_team
+from components.build_join_team import build_team,join_team
 st.title("Profil")
 if st.button("Abmelden"):
     st.session_state["eingeloggt"] = None
@@ -22,25 +22,60 @@ if st.session_state["rolle"] == "gruender":
     st.title("Team")
 
     connection = get_connection()
-    df = pd.read_sql("SELECT * FROM forschungseinrichtung", connection)
-    st.title("Forschungseinrichtungen")
-    st.dataframe(df, use_container_width=True)
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "SELECT einrichtung_id, name FROM forschungseinrichtung"
+    )
+
+    einrichtung_liste = cursor.fetchall()
+
+    cursor.close()
     connection.close()
+
+    einrichtung_dict = {
+        f"{row[0]} - {row[1]}": row[0]
+        for row in einrichtung_liste
+    }
+
     with st.form("team_form"):
 
-        einrichtung_id = st.number_input(
-            "Forschungseinrichtungs ID",
+        selected_einrichtung_label = st.selectbox(
+            "Forschungseinrichtung",
+            options=["Bitte wählen..."] + list(einrichtung_dict.keys())
+        )
+
+        submitted = st.form_submit_button("Team gründen")
+
+        if submitted:
+
+            if selected_einrichtung_label == "Bitte wählen...":
+                st.error("Bitte wähle eine Forschungseinrichtung aus.")
+
+            else:
+                einrichtung_id = einrichtung_dict[selected_einrichtung_label]
+
+                team_id = build_team(einrichtung_id)
+
+                st.success(
+                    f"Team gegründet! Team-ID: {team_id}"
+                )
+
+    with st.form("join_team_form"):
+        team_id = st.number_input(
+            "Team-ID",
             min_value=1,
             step=1
         )
-        submitted = st.form_submit_button("Team gründen")
-        print("submitted =", submitted)
-        if submitted:
-            team_id = build_team(einrichtung_id)
-            st.success(f"Team gegründet! Team-ID: {team_id}")
 
-if st.button("Team beitreten"):
-    st.warning("Funktion in bearbeitung")
+        submitted = st.form_submit_button("Team beitreten")
+
+        if submitted:
+            join_team(team_id)
+
+            st.success(
+                f"Du bist Team {team_id} beigetreten!"
+            )
 
     # Uploader für Files welche benötigt werden um das Formular zu vervollständigen. Z.B. Lebenslauf
     uploaded_file = st.file_uploader(

@@ -35,10 +35,16 @@ def join_team(team_id):
     cursor = connection.cursor()
 
     sql = """
-          INSERT INTO gruender (team_id)
-          VALUES (%s) 
+          UPDATE gruender
+          SET team_id = %s
+          WHERE email = %s
           """
 
     cursor.execute(sql, (
         team_id,
+        st.session_state["email"]
     ))
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return team_id
