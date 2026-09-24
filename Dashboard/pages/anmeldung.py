@@ -3,7 +3,7 @@ from database.benutzer import benutzer_anmelden, ansprechpartner_anlegen, bearbe
 from database.benutzer import benutzer_anlegen
 from database.connection import get_connection
 from datetime import datetime, date
-
+from components.form_values import form_value_ansprechpartner, form_value_gruender
 #Seite die für die Anmeldung und Registrierung zuständig ist.
 st.title("Anmeldung")
 
@@ -46,22 +46,13 @@ if not st.session_state.get("eingeloggt", False):
 else:
     st.success(f"Erfolgreich angemeldet mit {st.session_state['email']}")
 
+
+
+
+
+
 #Registriert einen neuen Benutzer je nach eingetragener Rolle. Ein Eintrag in einer der Tabellen von "Ansprechpartner", "gruenderteam", "bearbeiter" wird erstellt und die ID wird mit in die benutzer Tabelle übernommen und ein Eintrag angelegt
 st.title("Registrieren")
-email_registrierung = st.text_input("E-Mail1")
-passwort_registrierung = st.text_input(
-    "Passwort1",
-    type="password"
-)
-rolle_registrierung = st.selectbox("Rolle", ["Ansprechpartner", "gruender", "bearbeiter"])
-if rolle_registrierung == "Ansprechpartner":
-    url_registrierung = st.text_input("Url")
-    name_registrierung = st.text_input("Name")
-
-if rolle_registrierung == "bearbeiter":
-    vorname_registrierung = st.text_input("Vorname")
-    nachname_registrierung = st.text_input("Nachname")
-
 
 form_value = {
     "Vorname": None
@@ -76,6 +67,69 @@ form_value = {
     ,"Hochschulstatus": None
     ,"Team_id": None
 }
+
+
+
+rolle_registrierung = st.selectbox("Rolle", ["Ansprechpartner", "gruender", "bearbeiter"])
+email_registrierung = st.text_input("E-Mail1")
+passwort_registrierung = st.text_input(
+    "Passwort1",
+    type="password"
+)
+if rolle_registrierung == "Ansprechpartner":
+    form_value_ansprechpartner["Vorname"] = st.text_input("Vorname")
+    form_value_ansprechpartner["Nachname"] = st.text_input("Nachname")
+    form_value_ansprechpartner["Geburtsdatum"] = st.date_input("Geburtsdatum", None, min_value=date(1900, 1, 1),
+                                               max_value=datetime.now(), format="YYYY-MM-DD")
+    form_value_ansprechpartner["Strasse"] = st.text_input("Strasse")
+
+    # Dropdown Menü für PLZ Eingabe
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT plz, ort FROM plz_ort")
+    plz_liste = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    plz_dict = {
+        f"{row[0]} - {row[1]}": row[0]
+        for row in plz_liste
+    }
+    selected_plz_label = st.selectbox(
+        "Postleitzahl & Ort",
+        options=["Bitte wählen..."] + list(plz_dict.keys())
+    )
+    if selected_plz_label != "Bitte wählen...":
+        form_value_ansprechpartner["Plz"] = plz_dict[selected_plz_label]
+    else:
+        form_value_ansprechpartner["Plz"] = None
+
+    form_value_ansprechpartner["Email"] = email_registrierung
+    form_value_ansprechpartner["Telefon"] = st.text_input("Telefon")
+
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT einrichtung_id, name FROM forschungseinrichtung")
+    einrichtung_liste = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    einrichtung_dict = {
+        f"{row[0]} - {row[1]}": row[0]
+        for row in einrichtung_liste
+    }
+    selected_einrichtung_label = st.selectbox(
+        "ID & Einrichtung",
+        options=["Bitte wählen..."] + list(einrichtung_dict.keys())
+    )
+    if selected_einrichtung_label != "Bitte wählen...":
+        form_value_ansprechpartner["Einrichtung_id"] = einrichtung_dict[selected_einrichtung_label]
+    else:
+        form_value_ansprechpartner["Einrichtung_id"] = None
+if rolle_registrierung == "bearbeiter":
+    vorname_registrierung = st.text_input("Vorname")
+    nachname_registrierung = st.text_input("Nachname")
+
+
+
 # Menü für die Dateneingabe mit der Rolle eines Gründers
 if rolle_registrierung == "gruender":
     form_value["Vorname"] = st.text_input("Vorname")
@@ -124,9 +178,7 @@ if rolle_registrierung == "gruender":
 if st.button("Registrieren"):
     if rolle_registrierung == "Ansprechpartner":
         ansprechpartner_anlegen(
-            name_registrierung,
-            url_registrierung,
-            email_registrierung,
+            form_value_ansprechpartner,
             passwort_registrierung,
             rolle_registrierung,
         )
