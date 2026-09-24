@@ -48,3 +48,29 @@ selected_team_label = st.selectbox(
 team_id_to_save = team_dict[selected_team_label]
 # -------------------------------------------------------------------------
 
+
+# -------------------------------------------------------------------------
+# Dropdown-Menü für Postleitzahl (PLZ) und Ort
+# -------------------------------------------------------------------------
+# 1. Datenbankabfrage ausführen (PLZ und zugehörigen Ort abrufen)
+cursor = connection.cursor()
+cursor.execute("SELECT plz, ort FROM plz_ort")
+plz_liste = cursor.fetchall()
+
+# 2. Dictionary erstellen: Zuordnung von Anzeige-Text (z.B. "10115 - Berlin") zur reinen PLZ ("10115")
+plz_dict = {f"{row[0]} - {row[1]}": row[0] for row in plz_liste}
+
+# 3. Dropdown-Menü in Streamlit anzeigen
+selected_plz_label = st.selectbox(
+    "Postleitzahl & Ort",
+    options=["Bitte wählen..."] + list(plz_dict.keys())
+)
+
+# 4. Zugehörige PLZ für den INSERT-Befehl abrufen
+if selected_plz_label != "Bitte wählen...":
+    form_value["Plz"] = plz_dict[selected_plz_label]
+else:
+    form_value["Plz"] = None  # Oder wie du leere Eingaben abfangen möchtest
+# -------------------------------------------------------------------------
+
+
