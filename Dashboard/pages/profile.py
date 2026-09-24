@@ -37,14 +37,14 @@ if st.session_state["rolle"] == "gruender":
         f"{row[0]} - {row[1]}": row[0]
         for row in einrichtung_liste
     }
-
+    st.write("Hier kannst du ein neues Team gründen")
     with st.form("team_form"):
 
         selected_einrichtung_label = st.selectbox(
             "Forschungseinrichtung",
             options=["Bitte wählen..."] + list(einrichtung_dict.keys())
         )
-
+        team_name=st.text_input("Team Name")
         submitted = st.form_submit_button("Team gründen")
 
         if submitted:
@@ -55,12 +55,12 @@ if st.session_state["rolle"] == "gruender":
             else:
                 einrichtung_id = einrichtung_dict[selected_einrichtung_label]
 
-                team_id = build_team(einrichtung_id)
+                team_id = build_team(einrichtung_id,team_name)
 
                 st.success(
-                    f"Team gegründet! Team-ID: {team_id}"
+                    f"Team gegründet! Team-ID: {team_id, team_name}"
                 )
-
+    st.write("Hier kannst du einem Team beitreten")
     with st.form("join_team_form"):
         team_id = st.number_input(
             "Team-ID",

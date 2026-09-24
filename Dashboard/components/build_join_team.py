@@ -1,17 +1,17 @@
 import streamlit as st
 from database.connection import get_connection
 
-def build_team(einrichtung_id):
+def build_team(einrichtung_id, team_name):
     connection = get_connection()
     cursor = connection.cursor()
 
     sql = """
-          INSERT INTO gruendungsteam (einrichtung_id)
-          VALUES (%s) 
+          INSERT INTO gruendungsteam (einrichtung_id,team_name)
+          VALUES (%s,%s) 
           """
 
     cursor.execute(sql, (
-        einrichtung_id,
+        einrichtung_id, team_name
     ))
     team_id = cursor.lastrowid
     sql = """
@@ -27,7 +27,7 @@ def build_team(einrichtung_id):
     connection.commit()
     cursor.close()
     connection.close()
-    return team_id
+    return team_id, team_name
 
 #hier arbeite ich dran
 def join_team(team_id):

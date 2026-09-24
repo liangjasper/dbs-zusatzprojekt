@@ -55,13 +55,14 @@ else:
 st.title("Registrieren")
 
 rolle_registrierung = st.selectbox("Rolle", ["Ansprechpartner", "gruender", "bearbeiter"])
-email_registrierung = st.text_input("E-Mail1")
-passwort_registrierung = st.text_input(
-    "Passwort1",
-    type="password"
-)
+
 
 if rolle_registrierung == "Ansprechpartner":
+    email_registrierung = st.text_input("E-Mail1")
+    passwort_registrierung = st.text_input(
+        "Passwort1",
+        type="password"
+    )
     form_value_ansprechpartner["Vorname"] = st.text_input("Vorname")
     form_value_ansprechpartner["Nachname"] = st.text_input("Nachname")
     form_value_ansprechpartner["Geburtsdatum"] = st.date_input("Geburtsdatum", None, min_value=date(1900, 1, 1),
@@ -110,6 +111,11 @@ if rolle_registrierung == "Ansprechpartner":
     else:
         form_value_ansprechpartner["Einrichtung_id"] = None
 if rolle_registrierung == "bearbeiter":
+    email_registrierung = st.text_input("E-Mail1")
+    passwort_registrierung = st.text_input(
+        "Passwort1",
+        type="password"
+    )
     vorname_registrierung = st.text_input("Vorname")
     nachname_registrierung = st.text_input("Nachname")
 
@@ -117,6 +123,11 @@ if rolle_registrierung == "bearbeiter":
 
 # Menü für die Dateneingabe mit der Rolle eines Gründers
 if rolle_registrierung == "gruender":
+    email_registrierung = st.text_input("E-Mail1")
+    passwort_registrierung = st.text_input(
+        "Passwort1",
+        type="password"
+    )
     form_value["Vorname"] = st.text_input("Vorname")
     form_value["Nachname"] = st.text_input("Nachname")
     form_value["Geburtsdatum"] = st.date_input("Geburtsdatum", None, min_value=date(1900, 1, 1),
