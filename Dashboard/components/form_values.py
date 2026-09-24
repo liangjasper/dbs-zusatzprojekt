@@ -1,8 +1,8 @@
 #enthält alle values für das Ausfüllen der unterschiedlichen formen
 
 
-
-form_value_gruender = {
+#form_value für Gründer
+form_value = {
     "Vorname": None
     ,"Nachname": None
     ,"Geburtsdatum": None

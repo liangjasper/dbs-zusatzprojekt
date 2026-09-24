@@ -3,7 +3,7 @@ from database.benutzer import benutzer_anmelden, ansprechpartner_anlegen, bearbe
 from database.benutzer import benutzer_anlegen
 from database.connection import get_connection
 from datetime import datetime, date
-from components.form_values import form_value_ansprechpartner, form_value_gruender
+from components.form_values import form_value_ansprechpartner, form_value
 #Seite die für die Anmeldung und Registrierung zuständig ist.
 st.title("Anmeldung")
 
@@ -54,28 +54,13 @@ else:
 #Registriert einen neuen Benutzer je nach eingetragener Rolle. Ein Eintrag in einer der Tabellen von "Ansprechpartner", "gruenderteam", "bearbeiter" wird erstellt und die ID wird mit in die benutzer Tabelle übernommen und ein Eintrag angelegt
 st.title("Registrieren")
 
-form_value = {
-    "Vorname": None
-    ,"Nachname": None
-    ,"Geburtsdatum": None
-    ,"Strasse": None
-    ,"Plz": None
-    ,"Email": None
-    ,"Telefon": None
-    ,"Nationalitaet": None
-    ,"Anzahl_kinder": None
-    ,"Hochschulstatus": None
-    ,"Team_id": None
-}
-
-
-
 rolle_registrierung = st.selectbox("Rolle", ["Ansprechpartner", "gruender", "bearbeiter"])
 email_registrierung = st.text_input("E-Mail1")
 passwort_registrierung = st.text_input(
     "Passwort1",
     type="password"
 )
+
 if rolle_registrierung == "Ansprechpartner":
     form_value_ansprechpartner["Vorname"] = st.text_input("Vorname")
     form_value_ansprechpartner["Nachname"] = st.text_input("Nachname")
@@ -197,7 +182,6 @@ if st.button("Registrieren"):
     if rolle_registrierung == "gruender":
         gruender_anlegen(
             form_value,
-            email_registrierung,
             passwort_registrierung,
             rolle_registrierung
         )
