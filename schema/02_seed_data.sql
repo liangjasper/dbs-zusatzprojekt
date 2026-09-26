@@ -71,10 +71,6 @@ INSERT INTO gruender (gruender_id, vorname, nachname, geburtsdatum, strasse, plz
 -- 7. Dokumente (Simulation von Dateiuploads als Binärdaten)
 -- ---------------------------------------------------------------------
 INSERT INTO dokumente (dokument_id, dateiname, dateityp, datei) VALUES
--- Übergreifende Antragsformulare
-(1, 'antragsformular_femtech.pdf', 'application/pdf', CAST('DUMMY_PDF_FEMTECH_FORMULAR' AS BINARY)),
-(2, 'antragsformular_greentech.pdf', 'application/pdf', CAST('DUMMY_PDF_GREENTECH_FORMULAR' AS BINARY)),
-(3, 'antragsformular_quantumbit.pdf', 'application/pdf', CAST('DUMMY_PDF_QUANTUM_FORMULAR' AS BINARY)),
 
 -- Programmspezifische Pflichtdokumente
 (4, 'motivationspapier_richter.pdf', 'application/pdf', CAST('DUMMY_PDF_MOTIVATION_RICHTER' AS BINARY)),
@@ -107,15 +103,15 @@ INSERT INTO lebenslauf (gruender_id, dokument_id) VALUES
 -- ---------------------------------------------------------------------
 -- 9. Förderanträge (Haupttabelle)
 -- ---------------------------------------------------------------------
-INSERT INTO antrag (antrag_id, gruendungstitel, status, programm, einreichungsdatum, antragsformular_id, mentor_id, team_id, bearbeiter_id, einrichtung_id) VALUES
+INSERT INTO antrag (antrag_id, gruendungstitel, status, programm, einreichungsdatum, mentor_id, team_id, bearbeiter_id, einrichtung_id) VALUES
 -- Antrag 1: EXIST-Women (neu eingereicht, noch kein Bearbeiter zugewiesen)
-(1, 'FemTech Diagnostics', 'eingereicht', 'exist_women', '2026-05-10', 1, NULL, 1, NULL, 2),
+(1, 'FemTech Diagnostics', 'eingereicht', 'exist_women', '2026-05-10', NULL, 1, NULL, 2),
 
 -- Antrag 2: EXIST-Gründungsstipendium (in Prüfung, Nachbesserung erforderlich)
-(2, 'GreenCycle Analytics', 'in_pruefung', 'exist_gruendungsfoerderung', '2026-04-18', 2, 1, 2, 1, 1),
+(2, 'GreenCycle Analytics', 'in_pruefung', 'exist_gruendungsfoerderung', '2026-04-18', 1, 2, 1, 1),
 
 -- Antrag 3: EXIST-Forschungstransfer (erfolgreich bewilligt)
-(3, 'QuantumBit Computing Systems', 'bewilligt', 'exist_forschungstransfer', '2026-02-01', 3, 2, 3, 2, 3);
+(3, 'QuantumBit Computing Systems', 'bewilligt', 'exist_forschungstransfer', '2026-02-01', 2, 3, 2, 3);
 
 -- ---------------------------------------------------------------------
 -- 10. Programmspezifische Tabellen

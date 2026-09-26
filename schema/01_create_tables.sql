@@ -120,7 +120,6 @@ CREATE TABLE IF NOT EXISTS antrag (
     einreichungsdatum DATE NOT NULL,
 
     zuletzt_aktualisiert DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    antragsformular_id INT,
 
     mentor_id INT,
     team_id INT,
@@ -130,8 +129,7 @@ CREATE TABLE IF NOT EXISTS antrag (
     FOREIGN KEY (einrichtung_id) REFERENCES forschungseinrichtung(einrichtung_id),
     FOREIGN KEY (mentor_id) REFERENCES mentor(mentor_id) ON DELETE SET NULL,
     FOREIGN KEY (team_id) REFERENCES gruendungsteam(team_id) ON DELETE CASCADE,
-    FOREIGN KEY (bearbeiter_id) REFERENCES bearbeiter(bearbeiter_id) ON DELETE SET NULL,
-    FOREIGN KEY (antragsformular_id) REFERENCES dokumente(dokument_id) ON DELETE SET NULL
+    FOREIGN KEY (bearbeiter_id) REFERENCES bearbeiter(bearbeiter_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS gruendungsidee (
