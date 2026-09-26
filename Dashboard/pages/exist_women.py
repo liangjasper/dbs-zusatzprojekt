@@ -91,11 +91,10 @@ if speichern:
                status,
                programm,
                einreichungsdatum,
-               antragsformular_id,
                mentor_id,
                team_id,
                einrichtung_id)
-              VALUES (%s, %s, %s, %s, %s, %s, %s, %s) \
+              VALUES (%s, %s, %s, %s, %s, %s, %s) \
               """
 
         werte = (
@@ -103,7 +102,6 @@ if speichern:
             "eingereicht",
             "exist_women",
             date.today().strftime("%Y-%m-%d"),
-            dokument_id,
             mentor_id,
             team_id,
             einrichtung_id
