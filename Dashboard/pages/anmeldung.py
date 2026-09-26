@@ -1,6 +1,5 @@
 import streamlit as st
 from database.benutzer import benutzer_anmelden, ansprechpartner_anlegen, bearbeiter_anlegen, gruender_anlegen
-from database.benutzer import benutzer_anlegen
 from database.connection import get_connection
 from datetime import datetime, date
 from components.form_values import form_value_ansprechpartner, form_value
@@ -30,7 +29,7 @@ if not st.session_state.get("eingeloggt", False):
             elif st.session_state["rolle"] == "gruender":
                 st.session_state["gruender_id"]=benutzer["gruender_id"]
             elif st.session_state["rolle"] == "ansprechpartner":
-                st.session_state["ansprechpartner_id"] == benutzer["ansprechpartner_id"]
+                st.session_state["ansprechpartner_id"] = benutzer["ansprechpartner_id"]
 
             connection = get_connection()
             cursor = connection.cursor()

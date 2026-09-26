@@ -1,19 +1,31 @@
 import streamlit as st
-from datetime import datetime, date
+from datetime import date
 from database.connection import get_connection
 from components.upload import uploade_file
 
+
 #Formular für die Gründungsförderung
 st.title("Antrag exist women")
-with st.form("antrag_form"):
+
+#Uploader für Files welche benötigt werden um das Formular zu vervollständigen. Z.B. Lebenslauf
+st.write("Bitte zuerst motivationspapier hochladen")
+uploaded_file = st.file_uploader(
+        "motivationspapier hochladen",
+        type=["pdf", "docx", "png", "jpg"]
+    )
+dokument_id = None
+if uploaded_file is not None:
+    st.success(f"{uploaded_file.name} wurde hochgeladen!")
+
+    # Funktion aus der neuen Datei aufrufen
+    dokument_id = uploade_file(uploaded_file)
+
+    if dokument_id is not None:
+        st.success("Dokument wurde erfolgreich in der Datenbank gespeichert!")
+
+with st.form("antrag_form_women"):
 
     gruendungstitel = st.text_input("Gründungstitel")
-
-    antragsformular_id = st.number_input(
-        "Antragsformular ID",
-        min_value=1,
-        step=1
-    )
 
     mentor_id = st.number_input(
         "Mentor ID",
@@ -26,7 +38,7 @@ with st.form("antrag_form"):
         min_value=1,
         step=1
     )
-
+    #Dropdown für die Liste an Einrichtungen
     connection = get_connection()
     cursor = connection.cursor()
     cursor.execute("SELECT einrichtung_id, name FROM forschungseinrichtung")
@@ -42,10 +54,9 @@ with st.form("antrag_form"):
         options=["Bitte wählen..."] + list(einrichtung_dict.keys())
     )
     if selected_einrichtung_label != "Bitte wählen...":
-        einrichtung_id = einrichtung_dict[selected_einrichtung_label]
+        einrichtung_id= einrichtung_dict[selected_einrichtung_label]
     else:
         einrichtung_id = None
-
     speichern = st.form_submit_button("Antrag einreichen")
 
 
@@ -79,32 +90,24 @@ if speichern:
             "eingereicht",
             "exist_women",
             date.today().strftime("%Y-%m-%d"),
-            antragsformular_id,
+            dokument_id,
             mentor_id,
             team_id,
             einrichtung_id
         )
-
         cursor.execute(sql, werte)
+        antrag_id=cursor.lastrowid
+        sql = """
+            INSERT INTO exist_women
+            (antrag_id, motivationspapier_id)
+            VALUES (%s, %s)
+        """
+        cursor.execute(sql, (antrag_id,dokument_id))
         connection.commit()
 
         st.success("Antrag wurde erfolgreich eingereicht.")
-
         cursor.close()
         connection.close()
-#Uploader für Files welche benötigt werden um das Formular zu vervollständigen. Z.B. Lebenslauf
-uploaded_file = st.file_uploader(
-        "Dokumente hochladen",
-        type=["pdf", "docx", "png", "jpg"]
-    )
 
-if uploaded_file is not None:
-    st.success(f"{uploaded_file.name} wurde hochgeladen!")
 
-    # Funktion aus der neuen Datei aufrufen
-    success = uploade_file(uploaded_file, get_connection)
 
-    if success:
-        st.success("Dokument wurde erfolgreich in der Datenbank gespeichert!")
-
-st.write("Informationen zu EXIST Women.")

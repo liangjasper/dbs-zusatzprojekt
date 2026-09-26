@@ -23,28 +23,10 @@ def uploade_file(uploaded_file):
         bytes(uploaded_file.getbuffer())
     ))
     dokument_id = cursor.lastrowid
-    gruender_query = """
-                     SELECT gruender_id
-                     FROM benutzer
-                     WHERE benutzer_id = %s \
-                     """
-    cursor.execute(gruender_query, (st.session_state["benutzer_id"],))
-    result = cursor.fetchone()
-    gruender_id = result[0] if result else None
-    sql = """
-          INSERT INTO lebenslauf (gruender_id,
-                                  dokument_id)
-          VALUES (%s, %s) \
-          """
-
-    cursor.execute(sql, (
-        gruender_id,
-        dokument_id,
-    ))
     connection.commit()
     cursor.close()
     connection.close()
-    return True
+    return dokument_id
 
 
 def lebenslauf_eintrag(dokument_id):

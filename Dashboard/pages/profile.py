@@ -92,11 +92,10 @@ if st.session_state["rolle"] == "gruender":
     if uploaded_file is not None:
         st.success(f"{uploaded_file.name} wurde hochgeladen!")
 
-        # Funktion aus der neuen Datei aufrufen
-
-        success = uploade_file(uploaded_file)
-        lebenslauf_eintrag(cursor.lastrowid)
-        if success:
+        # file uploaden und document_id für den Lebenslauft Eintrag nutzen
+        document_id = uploade_file(uploaded_file)
+        lebenslauf_eintrag(document_id)
+        if document_id is not None:
             st.success("Dokument wurde erfolgreich in der Datenbank gespeichert!")
 
 #-------------- Funktionen im Profil des Bearbeiters--------------------
