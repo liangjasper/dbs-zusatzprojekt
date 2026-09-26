@@ -26,13 +26,25 @@ with st.form("antrag_form"):
         min_value=1,
         step=1
     )
-
-    einrichtung_id = st.number_input(
-        "Einrichtung ID",
-        min_value=1,
-        step=1
+    #Dropdown für die Liste an Einrichtungen
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT einrichtung_id, name FROM forschungseinrichtung")
+    einrichtung_liste = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    einrichtung_dict = {
+        f"{row[0]} - {row[1]}": row[0]
+        for row in einrichtung_liste
+    }
+    selected_einrichtung_label = st.selectbox(
+        "ID & Einrichtung",
+        options=["Bitte wählen..."] + list(einrichtung_dict.keys())
     )
-
+    if selected_einrichtung_label != "Bitte wählen...":
+        einrichtung_id= einrichtung_dict[selected_einrichtung_label]
+    else:
+        einrichtung_id = None
     speichern = st.form_submit_button("Antrag einreichen")
 
 
