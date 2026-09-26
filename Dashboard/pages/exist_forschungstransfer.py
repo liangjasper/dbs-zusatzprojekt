@@ -48,11 +48,24 @@ with st.form("antrag_form_forschungstransfer"):
 
     gruendungstitel = st.text_input("Gründungstitel")
 
-    mentor_id = st.number_input(
-        "Mentor ID",
-        min_value=1,
-        step=1
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT mentor_id, vorname, nachname FROM mentor")
+    mentor_liste = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    mentor_dict = {
+        f"{row[0]} - {row[1]} - {row[2]}": row[0]
+        for row in mentor_liste
+    }
+    selected_mentor_label = st.selectbox(
+        "Mentor",
+        options=["Bitte wählen..."] + list(mentor_dict.keys())
     )
+    if selected_mentor_label != "Bitte wählen...":
+        mentor_id = mentor_dict[selected_mentor_label]
+    else:
+        mentor_id = None
 
     team_id = st.number_input(
         "Team ID",
