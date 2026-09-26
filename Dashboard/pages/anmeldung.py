@@ -25,6 +25,12 @@ if not st.session_state.get("eingeloggt", False):
             st.session_state["benutzer_id"] = benutzer["benutzer_id"]
             st.session_state["email"] = benutzer["email"]
             st.session_state["rolle"] = benutzer["rolle"]
+            if st.session_state["rolle"] == "bearbeiter":
+                st.session_state["bearbeiter_id"]=benutzer["bearbeiter_id"]
+            elif st.session_state["rolle"] == "gruender":
+                st.session_state["gruender_id"]=benutzer["gruender_id"]
+            elif st.session_state["rolle"] == "ansprechpartner":
+                st.session_state["ansprechpartner_id"] == benutzer["ansprechpartner_id"]
 
             connection = get_connection()
             cursor = connection.cursor()

@@ -1,13 +1,9 @@
 import streamlit as st
 from datetime import datetime, date
-from dateutil.relativedelta import relativedelta
-from dotenv import load_dotenv
 from database.connection import get_connection
-import mysql.connector
 from components.upload import uploade_file
 
 #Formular für die Gründungsförderung
-load_dotenv()
 st.title("Antrag exist Gründungsförderung")
 with st.form("antrag_form"):
 
@@ -49,53 +45,42 @@ if speichern:
         connection = None
         cursor = None
 
-        try:
-            connection = get_connection()
-            cursor = connection.cursor()
+        connection = get_connection()
+        cursor = connection.cursor()
 
-            sql = """
-                INSERT INTO antrag
-                (
-                    gruendungstitel,
-                    status,
-                    programm,
-                    einreichungsdatum,
-                    antragsformular_id,
-                    mentor_id,
-                    team_id,
-                    einrichtung_id
-                )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            """
+        sql = """
+              INSERT INTO antrag
+              (gruendungstitel,
+               status,
+               programm,
+               einreichungsdatum,
+               antragsformular_id,
+               mentor_id,
+               team_id,
+               einrichtung_id)
+              VALUES (%s, %s, %s, %s, %s, %s, %s, %s) \
+              """
 
-            werte = (
-                gruendungstitel,
-                "eingereicht",
-                "exist_gruendungsfoerderung",
-                date.today().strftime("%Y-%m-%d"),
-                antragsformular_id,
-                mentor_id,
-                team_id,
-                einrichtung_id
-            )
+        werte = (
+            gruendungstitel,
+            "eingereicht",
+            "exist_gruendungsfoerderung",
+            date.today().strftime("%Y-%m-%d"),
+            antragsformular_id,
+            mentor_id,
+            team_id,
+            einrichtung_id
+        )
 
-            cursor.execute(sql, werte)
-            connection.commit()
+        cursor.execute(sql, werte)
+        connection.commit()
 
-            st.success("Antrag wurde erfolgreich eingereicht.")
+        st.success("Antrag wurde erfolgreich eingereicht.")
+        cursor.close()
+        connection.close()
 
-        except Exception as e:
-            if connection:
-                connection.rollback()
 
-            st.error(f"Fehler beim Einfügen des Antrags: {e}")
 
-        finally:
-            if cursor:
-                cursor.close()
-
-            if connection:
-                connection.close()
 #Uploader für Files welche benötigt werden um das Formular zu vervollständigen. Z.B. Lebenslauf
 uploaded_file = st.file_uploader(
         "Dokumente hochladen",

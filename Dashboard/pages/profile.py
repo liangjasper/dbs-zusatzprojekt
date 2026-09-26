@@ -1,6 +1,6 @@
 import streamlit as st
 from database.connection import get_connection
-from components.upload import uploade_file
+from components.upload import uploade_file, lebenslauf_eintrag
 import pandas as pd
 from components.build_join_team import build_team,join_team
 from database.connection import get_connection
@@ -79,7 +79,7 @@ if st.session_state["rolle"] == "gruender":
                 f"Du bist Team {team_id} beigetreten!"
             )
 
-    # Uploader für Files welche benötigt werden um das Formular zu vervollständigen. Z.B. Lebenslauf
+    #Uploader für den Lebenslauf
     uploaded_file = st.file_uploader(
         "Lebenslauf hochladen",
         type=["pdf", "docx", "png", "jpg"]
@@ -88,8 +88,9 @@ if st.session_state["rolle"] == "gruender":
         st.success(f"{uploaded_file.name} wurde hochgeladen!")
 
         # Funktion aus der neuen Datei aufrufen
-        success = uploade_file(uploaded_file)
 
+        success = uploade_file(uploaded_file)
+        lebenslauf_eintrag(cursor.lastrowid)
         if success:
             st.success("Dokument wurde erfolgreich in der Datenbank gespeichert!")
 
@@ -125,14 +126,7 @@ if st.session_state["rolle"] == "ansprechpartner":
                           VALUES (%s, %s, %s, %s) \
                           """
 
-                    werte = (
-                        vorname,
-                        nachname,
-                        email,
-                        telefon
-                    )
-
-                    cursor.execute(sql, werte)
+                    cursor.execute(sql,( vorname, nachname, email, telefon))
                     connection.commit()
 
                     st.success("Mentor wurde erfolgreich angelegt.")
