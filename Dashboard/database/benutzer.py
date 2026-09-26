@@ -164,7 +164,7 @@ def benutzer_anmelden(email, passwort):
     cursor = connection.cursor(dictionary=True)
 
     sql = """
-        SELECT benutzer_id, email, passwort,rolle
+        SELECT benutzer_id, email, passwort,rolle, ansprechpartner_id, gruender_id, bearbeiter_id
         FROM benutzer
         WHERE email = %s
         AND passwort = %s

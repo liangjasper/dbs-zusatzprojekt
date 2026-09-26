@@ -1,9 +1,8 @@
 import streamlit as st
-from database.connection import get_connection
-from components.upload import uploade_file
-import pandas as pd
+from components.upload import uploade_file, lebenslauf_eintrag
 from components.build_join_team import build_team,join_team
 from database.connection import get_connection
+
 st.title("Profil")
 if st.button("Abmelden"):
     st.session_state["eingeloggt"] = None
@@ -17,6 +16,12 @@ st.title("Persönliche Daten")
 st.write("Benutzer: ", st.session_state["benutzer_id"])
 st.write("Email: ", st.session_state["email"])
 st.write("Rolle: ",st.session_state["rolle"])
+if st.session_state["rolle"] == "bearbeiter":
+    st.write("Bearbeiter ID: ",st.session_state["bearbeiter_id"])
+elif st.session_state["rolle"] == "gruender":
+    st.write("Gründer ID:" ,st.session_state["gruender_id"])
+elif st.session_state["rolle"] == "ansprechpartner":
+    st.write("Ansprechpartner ID" ,st.session_state["ansprechpartner_id"])
 st.write("Hier stehen bald weitere Perönlichen Daten")
 
 #--------------Funktionen im Profil des Gründers--------------------------------
@@ -79,7 +84,7 @@ if st.session_state["rolle"] == "gruender":
                 f"Du bist Team {team_id} beigetreten!"
             )
 
-    # Uploader für Files welche benötigt werden um das Formular zu vervollständigen. Z.B. Lebenslauf
+    #Uploader für den Lebenslauf
     uploaded_file = st.file_uploader(
         "Lebenslauf hochladen",
         type=["pdf", "docx", "png", "jpg"]
@@ -87,10 +92,10 @@ if st.session_state["rolle"] == "gruender":
     if uploaded_file is not None:
         st.success(f"{uploaded_file.name} wurde hochgeladen!")
 
-        # Funktion aus der neuen Datei aufrufen
-        success = uploade_file(uploaded_file)
-
-        if success:
+        # file uploaden und document_id für den Lebenslauft Eintrag nutzen
+        document_id = uploade_file(uploaded_file)
+        lebenslauf_eintrag(document_id)
+        if document_id is not None:
             st.success("Dokument wurde erfolgreich in der Datenbank gespeichert!")
 
 #-------------- Funktionen im Profil des Bearbeiters--------------------
@@ -125,14 +130,7 @@ if st.session_state["rolle"] == "ansprechpartner":
                           VALUES (%s, %s, %s, %s) \
                           """
 
-                    werte = (
-                        vorname,
-                        nachname,
-                        email,
-                        telefon
-                    )
-
-                    cursor.execute(sql, werte)
+                    cursor.execute(sql,( vorname, nachname, email, telefon))
                     connection.commit()
 
                     st.success("Mentor wurde erfolgreich angelegt.")
