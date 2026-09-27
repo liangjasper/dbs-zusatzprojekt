@@ -42,3 +42,23 @@ def lebenslauf_eintrag(dokument_id):
     connection.commit()
     cursor.close()
     connection.close()
+
+
+def download_file(dokument_id):
+
+    connection = get_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    sql = """
+        SELECT dateiname, dateityp, datei
+        FROM dokumente
+        WHERE dokument_id = %s
+    """
+
+    cursor.execute(sql, (dokument_id,))
+    dokument = cursor.fetchone()
+
+    cursor.close()
+    connection.close()
+
+    return dokument

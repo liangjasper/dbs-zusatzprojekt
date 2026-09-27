@@ -1,5 +1,5 @@
 import streamlit as st
-from components.upload import uploade_file, lebenslauf_eintrag
+from components.upload import uploade_file, lebenslauf_eintrag, download_file
 from components.build_join_team import build_team,join_team
 from database.connection import get_connection
 st.title("Profil")
@@ -144,8 +144,35 @@ if st.session_state["rolle"] == "bearbeiter":
         st.rerun()
     st.title("Zusammenfassungen")
     st.title("Notiz erstellen")
-    st.title("")
-    
+    with st.form("notiz_erstellen"):
+        notiz=st.text_input("Notiz schreiben")
+        antrag_id = st.number_input("Antrags-ID schreiben")
+        submit = st.form_submit_button("Notiz anlegen")
+    if submit:
+        connection = get_connection()
+        cursor = connection.cursor()
+        sql = """
+              INSERT INTO notiz (antrag_id, inhalt) 
+              VALUE(%s, %s)
+        """
+        cursor.execute(sql,(antrag_id,notiz))
+        connection.commit()
+        cursor.close()
+        connection.close()
+    st.title("Downloads")
+    with st.form("download"):
+        dokument_id=st.number_input("Dokument_Id")
+        submit = st.form_submit_button("Download")
+    if submit:
+        dokument = download_file(dokument_id)
+        if dokument is not None:
+            st.download_button(
+                label="Dokument herunterladen",
+                data=dokument["datei"],
+                file_name=dokument["dateiname"],
+                mime=dokument["dateityp"]
+            )
+
 #------------- Funktionen im Profil des Ansprechpartners-----------------------------
 if st.session_state["rolle"] == "ansprechpartner":
     st.title("Mentor anlegen")
