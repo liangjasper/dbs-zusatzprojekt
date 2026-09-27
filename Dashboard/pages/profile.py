@@ -2,7 +2,6 @@ import streamlit as st
 from components.upload import uploade_file, lebenslauf_eintrag
 from components.build_join_team import build_team,join_team
 from database.connection import get_connection
-
 st.title("Profil")
 if st.button("Abmelden"):
     st.session_state["eingeloggt"] = None
@@ -99,12 +98,54 @@ if st.session_state["rolle"] == "gruender":
             st.success("Dokument wurde erfolgreich in der Datenbank gespeichert!")
 
 #-------------- Funktionen im Profil des Bearbeiters--------------------
-if st.session_state["rolle"] == "Bearbeiter":
-    if st.button(""):
-        st.warning("Funktion in bearbeitung")
+if st.session_state["rolle"] == "bearbeiter":
+    st.title("Alle Anträge")
+    connection = get_connection()
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM antrag")
+    daten = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    st.dataframe(daten, use_container_width=True)
+
+    st.title("Als Bearbeiter in Antrag eintragen")
+    with st.form("bearbeiter_antrag_form"):
+        antrag_id = st.number_input(
+            "Antrags-ID eintragen",
+            min_value=1,
+            step=1
+        )
+        submit = st.form_submit_button(
+            "Als Bearbeiter eintragen"
+        )
+
+    if submit:
+
+        connection = get_connection()
+        cursor = connection.cursor()
+
+        sql = """
+              UPDATE antrag
+              SET bearbeiter_id = %s
+              WHERE antrag_id = %s \
+              """
+
+        cursor.execute(
+            sql,
+            (
+                st.session_state["bearbeiter_id"],
+                antrag_id
+            )
+        )
+        connection.commit()
+        cursor.close()
+        connection.close()
+        st.success("Als bearbeiter eintragen!")
+        st.rerun()
     st.title("Zusammenfassungen")
     st.title("Notiz erstellen")
     st.title("")
+    
 #------------- Funktionen im Profil des Ansprechpartners-----------------------------
 if st.session_state["rolle"] == "ansprechpartner":
     st.title("Mentor anlegen")

@@ -59,142 +59,271 @@ else:
 #Registriert einen neuen Benutzer je nach eingetragener Rolle. Ein Eintrag in einer der Tabellen von "Ansprechpartner", "gruenderteam", "bearbeiter" wird erstellt und die ID wird mit in die benutzer Tabelle übernommen und ein Eintrag angelegt
 st.title("Registrieren")
 
-rolle_registrierung = st.selectbox("Rolle", ["Ansprechpartner", "gruender", "bearbeiter"])
+rolle_registrierung = st.selectbox(
+    "Rolle",
+    ["Ansprechpartner", "gruender", "bearbeiter"]
+)
+
 
 
 if rolle_registrierung == "Ansprechpartner":
-    email_registrierung = st.text_input("E-Mail1")
-    form_value_ansprechpartner["Passwort"] = st.text_input(
-        "Passwort1",
-        type="password"
-    )
-    form_value_ansprechpartner["Vorname"] = st.text_input("Vorname")
-    form_value_ansprechpartner["Nachname"] = st.text_input("Nachname")
-    form_value_ansprechpartner["Strasse"] = st.text_input("Strasse")
 
-    # Dropdown Menü für PLZ Eingabe
-    connection = get_connection()
-    cursor = connection.cursor()
-    cursor.execute("SELECT plz, ort FROM plz_ort")
-    plz_liste = cursor.fetchall()
-    cursor.close()
-    connection.close()
-    plz_dict = {
-        f"{row[0]} - {row[1]}": row[0]
-        for row in plz_liste
-    }
-    selected_plz_label = st.selectbox(
-        "Postleitzahl & Ort",
-        options=["Bitte wählen..."] + list(plz_dict.keys())
-    )
-    if selected_plz_label != "Bitte wählen...":
-        form_value_ansprechpartner["Plz"] = plz_dict[selected_plz_label]
-    else:
-        form_value_ansprechpartner["Plz"] = None
+    with st.form("form_ansprechpartner"):
 
-    form_value_ansprechpartner["Email"] = email_registrierung
-    form_value_ansprechpartner["Telefon"] = st.text_input("Telefon")
+        email = st.text_input("E-Mail")
+        passwort = st.text_input(
+            "Passwort",
+            type="password"
+        )
 
-    connection = get_connection()
-    cursor = connection.cursor()
-    cursor.execute("SELECT einrichtung_id, name FROM forschungseinrichtung")
-    einrichtung_liste = cursor.fetchall()
-    cursor.close()
-    connection.close()
-    einrichtung_dict = {
-        f"{row[0]} - {row[1]}": row[0]
-        for row in einrichtung_liste
-    }
-    selected_einrichtung_label = st.selectbox(
-        "ID & Einrichtung",
-        options=["Bitte wählen..."] + list(einrichtung_dict.keys())
-    )
-    if selected_einrichtung_label != "Bitte wählen...":
-        form_value_ansprechpartner["Einrichtung_id"] = einrichtung_dict[selected_einrichtung_label]
-    else:
-        form_value_ansprechpartner["Einrichtung_id"] = None
-if rolle_registrierung == "bearbeiter":
-    email_registrierung = st.text_input("E-Mail1")
-    passwort_registrierung = st.text_input(
-        "Passwort1",
-        type="password"
-    )
-    vorname_registrierung = st.text_input("Vorname")
-    nachname_registrierung = st.text_input("Nachname")
+        vorname = st.text_input("Vorname")
+        nachname = st.text_input("Nachname")
+        strasse = st.text_input("Strasse")
+        telefon = st.text_input("Telefon")
+
+
+        connection = get_connection()
+        cursor = connection.cursor()
+
+        cursor.execute(
+            "SELECT plz, ort FROM plz_ort"
+        )
+
+        plz_liste = cursor.fetchall()
+
+        cursor.close()
+        connection.close()
+
+        plz_dict = {
+            f"{row[0]} - {row[1]}": row[0]
+            for row in plz_liste
+        }
+
+        selected_plz_label = st.selectbox(
+            "Postleitzahl & Ort",
+            options=[
+                "Bitte wählen..."
+            ] + list(plz_dict.keys())
+        )
 
 
 
-# Menü für die Dateneingabe mit der Rolle eines Gründers
-if rolle_registrierung == "gruender":
-    form_value["Email"] = st.text_input("E-Mail1")
-    form_value["Passwort"] = st.text_input(
-        "Passwort1",
-        type="password"
-    )
+        connection = get_connection()
+        cursor = connection.cursor()
 
-    form_value["Vorname"] = st.text_input("Vorname")
-    form_value["Nachname"] = st.text_input("Nachname")
-    form_value["Geburtsdatum"] = st.date_input("Geburtsdatum", None, min_value=date(1900, 1, 1),
-                                               max_value=datetime.now(), format="YYYY-MM-DD")
-    form_value["Strasse"] = st.text_input("Strasse")
+        cursor.execute(
+            "SELECT einrichtung_id, name FROM forschungseinrichtung"
+        )
+
+        einrichtung_liste = cursor.fetchall()
+
+        cursor.close()
+        connection.close()
+
+        einrichtung_dict = {
+            f"{row[0]} - {row[1]}": row[0]
+            for row in einrichtung_liste
+        }
+
+        selected_einrichtung_label = st.selectbox(
+            "ID & Einrichtung",
+            options=[
+                "Bitte wählen..."
+            ] + list(einrichtung_dict.keys())
+        )
+
+        registrieren = st.form_submit_button(
+            "Registrieren"
+        )
 
 
-    #Dropdown Menü für PLZ Eingabe
-    connection = get_connection()
-    cursor = connection.cursor()
-    cursor.execute("SELECT plz, ort FROM plz_ort")
-    plz_liste = cursor.fetchall()
-    cursor.close()
-    connection.close()
-    plz_dict = {
-        f"{row[0]} - {row[1]}": row[0]
-        for row in plz_liste
-    }
-    selected_plz_label = st.selectbox(
-        "Postleitzahl & Ort",
-        options=["Bitte wählen..."] + list(plz_dict.keys())
-    )
-    if selected_plz_label != "Bitte wählen...":
-        form_value["Plz"] = plz_dict[selected_plz_label]
-    else:
-        form_value["Plz"] = None
 
-    form_value["Telefon"] = st.text_input("Telefon")
-    form_value["Nationalitaet"] = st.text_input("Nationalität")
-    form_value["Anzahl_kinder"] = st.selectbox("Anzahl der kinder", [None, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-    form_value["Hochschulstatus"] = st.selectbox(
-        "Hochschulstatus",
-        [
-            "",
-            "StudentIn",
-            "AbsolventIn",
-            "Promovierende/r",
-            "Wissenschaftliche/r MitarbeiterIn",
-            "Postdoc / GruppenleiterIn",
-        ],
-    )
+    if registrieren:
 
-if st.button("Registrieren"):
-    if rolle_registrierung == "Ansprechpartner":
+        if selected_plz_label != "Bitte wählen...":
+            plz = plz_dict[selected_plz_label]
+        else:
+            plz = None
+
+        if selected_einrichtung_label != "Bitte wählen...":
+            einrichtung_id = einrichtung_dict[
+                selected_einrichtung_label
+            ]
+        else:
+            einrichtung_id = None
+
+        form_value_ansprechpartner = {
+            "Email": email,
+            "Passwort": passwort,
+            "Vorname": vorname,
+            "Nachname": nachname,
+            "Strasse": strasse,
+            "Plz": plz,
+            "Telefon": telefon,
+            "Einrichtung_id": einrichtung_id
+        }
+
         ansprechpartner_anlegen(
             form_value_ansprechpartner,
-            rolle_registrierung,
+            "Ansprechpartner"
         )
-        st.success("Registrierung als Ansprechpartner erfolgreich")
 
-    if rolle_registrierung == "bearbeiter":
+        st.success(
+            "Registrierung als Ansprechpartner erfolgreich"
+        )
+
+
+
+elif rolle_registrierung == "bearbeiter":
+
+    with st.form("form_bearbeiter"):
+
+        email = st.text_input("E-Mail")
+
+        passwort = st.text_input(
+            "Passwort",
+            type="password"
+        )
+
+        vorname = st.text_input("Vorname")
+        nachname = st.text_input("Nachname")
+
+        registrieren = st.form_submit_button(
+            "Registrieren"
+        )
+
+
+    if registrieren:
+
         bearbeiter_anlegen(
-            vorname_registrierung,
-            nachname_registrierung,
-            email_registrierung,
-            passwort_registrierung,
-            rolle_registrierung,
+            vorname,
+            nachname,
+            email,
+            passwort,
+            "bearbeiter"
         )
-        st.success("Registrierung als Bearbeiter/in erfolgreich")
 
-    if rolle_registrierung == "gruender":
+        st.success(
+            "Registrierung als Bearbeiter erfolgreich"
+        )
+
+
+elif rolle_registrierung == "gruender":
+
+    with st.form("form_gruender"):
+
+
+        email = st.text_input("E-Mail")
+
+        passwort = st.text_input(
+            "Passwort",
+            type="password"
+        )
+
+        vorname = st.text_input("Vorname")
+        nachname = st.text_input("Nachname")
+
+        geburtsdatum = st.date_input(
+            "Geburtsdatum",
+            None,
+            min_value=date(1900, 1, 1),
+            max_value=datetime.now(),
+            format="YYYY-MM-DD"
+        )
+
+        strasse = st.text_input("Strasse")
+
+        connection = get_connection()
+        cursor = connection.cursor()
+
+        cursor.execute(
+            "SELECT plz, ort FROM plz_ort"
+        )
+
+        plz_liste = cursor.fetchall()
+
+        cursor.close()
+        connection.close()
+
+        plz_dict = {
+            f"{row[0]} - {row[1]}": row[0]
+            for row in plz_liste
+        }
+
+        selected_plz_label = st.selectbox(
+            "Postleitzahl & Ort",
+            options=[
+                "Bitte wählen..."
+            ] + list(plz_dict.keys())
+        )
+
+
+        telefon = st.text_input("Telefon")
+
+        nationalitaet = st.text_input(
+            "Nationalität"
+        )
+
+        anzahl_kinder = st.selectbox(
+            "Anzahl der Kinder",
+            [
+                None,
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9
+            ]
+        )
+
+        hochschulstatus = st.selectbox(
+            "Hochschulstatus",
+            [
+                "",
+                "StudentIn",
+                "AbsolventIn",
+                "Promovierende/r",
+                "Wissenschaftliche/r MitarbeiterIn",
+                "Postdoc / GruppenleiterIn",
+            ],
+        )
+
+        registrieren = st.form_submit_button(
+            "Registrieren"
+        )
+
+
+    if registrieren:
+
+        if selected_plz_label != "Bitte wählen...":
+            plz = plz_dict[selected_plz_label]
+        else:
+            plz = None
+
+        form_value = {
+            "Email": email,
+            "Passwort": passwort,
+            "Vorname": vorname,
+            "Nachname": nachname,
+            "Geburtsdatum": geburtsdatum,
+            "Strasse": strasse,
+            "Plz": plz,
+            "Telefon": telefon,
+            "Nationalitaet": nationalitaet,
+            "Anzahl_kinder": anzahl_kinder,
+            "Hochschulstatus": hochschulstatus
+        }
+
         gruender_anlegen(
             form_value,
-            rolle_registrierung
+            "gruender"
         )
-        st.success("Registrierung als Gründer erfolgreich")
+
+        st.success(
+            "Registrierung als Gründer erfolgreich"
+        )
