@@ -155,7 +155,7 @@ cursor.execute(sql, (antrag_id, inhalt, dokument_id))
 
 # Python Beispielscode:
 
-# Dropdown-Menü für Ansprechpartner
+# Dropdown-Menü für Einrichtungen
 # -------------------------------------------------------------------------
 # 1. Datenbankabfrage ausführen
 cursor.execute("SELECT einrichtung_id, name FROM forschungseinrichtung")
@@ -224,4 +224,153 @@ else:
     form_value["Plz"] = None  # Oder wie du leere Eingaben abfangen möchtest
 # -------------------------------------------------------------------------
 
+
+# -------------------------------------------------------------------
+    # Dynamisches Dropdown für Gründungsteams (gefiltert nach Einrichtung)
+    # -------------------------------------------------------------------
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    # SQL-Abfrage: Holt nur die Teams, die zur selben Einrichtung gehören
+    # wie der aktuell eingeloggte Ansprechpartner.
+    sql_teams = """
+        SELECT t.team_id, t.team_name 
+        FROM gruendungsteam t
+        JOIN ansprechpartner a ON t.einrichtung_id = a.einrichtung_id
+        WHERE a.ansprechpartner_id = %s
+    """
+    cursor.execute(sql_teams, (st.session_state["ansprechpartner_id"],))
+    team_liste = cursor.fetchall()
+    cursor.close()
+    connection.close()
+
+    # Dictionary für das Dropdown-Menü erstellen
+    team_dict = {
+        f"ID: {row[0]} - {row[1]}": row[0]
+        for row in team_liste
+    }
+
+    selected_team_label = st.selectbox(
+        "Gründungsteam auswählen",
+        options=["Bitte wählen..."] + list(team_dict.keys())
+    )
+
+    # team_id für den späteren INSERT-Befehl speichern
+    if selected_team_label != "Bitte wählen...":
+        team_id = team_dict[selected_team_label]
+    else:
+        team_id = None
+    # -------------------------------------------------------------------
+
+
+# -------------------------------------------------------------------
+    # Dynamisches Dropdown für Mentoren (Alle registrierten Mentoren)
+    # -------------------------------------------------------------------
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    # SQL-Abfrage: Holt alle Mentoren aus der Datenbank
+    cursor.execute("SELECT mentor_id, vorname, nachname FROM mentor")
+    mentor_liste = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+
+    # Dictionary für das Dropdown-Menü erstellen
+    mentor_dict = {
+        f"ID: {row[0]} - {row[1]} {row[2]}": row[0]
+        for row in mentor_liste
+    }
+
+    selected_mentor_label = st.selectbox(
+        "Mentor auswählen",
+        options=["Bitte wählen..."] + list(mentor_dict.keys())
+    )
+
+    # mentor_id für den späteren Datenbank-Befehl speichern
+    if selected_mentor_label != "Bitte wählen...":
+        mentor_id = mentor_dict[selected_mentor_label]
+    else:
+        mentor_id = None
+    # -------------------------------------------------------------------
+
+
+# -------------------------------------------------------------------
+    # Übersicht der eingereichten Anträge für den Ansprechpartner
+    # -------------------------------------------------------------------
+    st.subheader("Übersicht: Eingereichte Anträge (Meine Einrichtung)")
+
+    connection_antrag = get_connection()
+    cursor_antrag = connection_antrag.cursor()
+
+    # SQL-Abfrage: Holt alle Anträge, die zur Einrichtung des eingeloggten Ansprechpartners gehören
+    sql_uebersicht = """
+        SELECT a.antrag_id, a.gruendungstitel, a.programm, a.status, a.einreichungsdatum
+        FROM antrag a
+        JOIN ansprechpartner ap ON a.einrichtung_id = ap.einrichtung_id
+        WHERE ap.ansprechpartner_id = %s
+        ORDER BY a.einreichungsdatum DESC
+    """
+    cursor_antrag.execute(sql_uebersicht, (st.session_state["ansprechpartner_id"],))
+    antraege = cursor_antrag.fetchall()
+
+    cursor_antrag.close()
+    connection_antrag.close()
+
+    if antraege:
+        # Daten in ein Pandas DataFrame umwandeln für eine schöne Tabellenansicht
+        df_antraege = pd.DataFrame(
+            antraege,
+            columns=["Antrag ID", "Gründungstitel", "Programm", "Status", "Einreichungsdatum"]
+        )
+        # Tabelle in Streamlit anzeigen
+        st.dataframe(df_antraege, use_container_width=True)
+    else:
+        st.info("Bisher wurden noch keine Anträge für deine Einrichtung eingereicht.")
+    # -------------------------------------------------------------------
+
+
+# -------------------------------------------------------------------
+    # Übersicht der eingereichten Anträge für das eigene Gründungsteam
+    # -------------------------------------------------------------------
+    st.subheader("Übersicht: Anträge meines Teams")
+
+    connection_antrag = get_connection()
+    cursor_antrag = connection_antrag.cursor()
+
+    # SQL-Abfrage: Holt alle Anträge, bei denen die team_id mit der team_id des Gründers übereinstimmt
+    sql_uebersicht = """
+        SELECT a.antrag_id, a.gruendungstitel, a.programm, a.status, a.einreichungsdatum
+        FROM antrag a
+        JOIN gruender g ON a.team_id = g.team_id
+        WHERE g.gruender_id = %s
+        ORDER BY a.einreichungsdatum DESC
+    """
+    cursor_antrag.execute(sql_uebersicht, (st.session_state["gruender_id"],))
+    antraege = cursor_antrag.fetchall()
+
+    cursor_antrag.close()
+    connection_antrag.close()
+
+    if antraege:
+        # Daten in ein Pandas DataFrame umwandeln
+        df_antraege = pd.DataFrame(
+            antraege,
+            columns=["Antrag ID", "Gründungstitel", "Programm", "Status", "Einreichungsdatum"]
+        )
+        # Tabelle anzeigen
+        st.dataframe(df_antraege, use_container_width=True)
+    else:
+        st.info("Dein Team hat bisher noch keine Anträge eingereicht, oder du bist noch keinem Team beigetreten.")
+    # -------------------------------------------------------------------
+
+
+
+# team dropdown liste
+# mentor dropdown liste
+# einrichtungen vom ansprechpartner ziehen
+# anträge für alle leute ziehen
+# anfangen mit bearbeiter
+
+# ansprechpartner muss noch Anträge ändern können
 
