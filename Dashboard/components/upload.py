@@ -62,3 +62,17 @@ def download_file(dokument_id):
     connection.close()
 
     return dokument
+
+def get_documents_for_antrag(antrag_id):
+    connection = get_connection()
+    cursor = connection.cursor(dictionary=True)
+    sql = """
+        SELECT d.dokument_id, d.dateiname, d.dateityp, d.datei
+        FROM exist_gruendungsfoerderung e
+        JOIN dokumente d
+            ON e.ideenpapier_id = d.dokument_id
+        WHERE e.antrag_id = %s
+    """
+
+    cursor.execute(sql, (antrag_id,))
+    return cursor.fetchall()

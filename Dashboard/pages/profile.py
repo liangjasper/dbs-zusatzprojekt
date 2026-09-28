@@ -1,7 +1,8 @@
 import streamlit as st
-from components.upload import uploade_file, lebenslauf_eintrag, download_file
+from components.upload import uploade_file, lebenslauf_eintrag, get_documents_for_antrag
 from components.build_join_team import build_team,join_team
 from database.connection import get_connection
+from components.antrags_funktionen import get_antrag
 import pandas as pd
 st.title("Profil")
 if st.button("Abmelden"):
@@ -160,7 +161,6 @@ if st.session_state["rolle"] == "bearbeiter":
               SET bearbeiter_id = %s
               WHERE antrag_id = %s \
               """
-
         cursor.execute(
             sql,
             (
@@ -173,7 +173,28 @@ if st.session_state["rolle"] == "bearbeiter":
         connection.close()
         st.success("Als bearbeiter eintragen!")
         st.rerun()
-    st.title("Zusammenfassungen")
+    st.title("kompletten Antrag anzeigen lassen")
+    with st.form("kompletten_antrag_form"):
+        antrag_id = st.number_input("Hier antrags_id eintragen")
+        submit= st.form_submit_button("Antrag anzeigen")
+    if submit:
+        st.session_state["antrag_id"] = antrag_id
+
+    if "antrag_id" in st.session_state:
+        antrag, gruender, notiz, ansprechpartner, dokument = get_antrag(antrag_id)
+        st.dataframe(antrag, use_container_width=True)
+        st.dataframe(gruender, use_container_width=True)
+        st.dataframe(notiz, use_container_width=True)
+        st.dataframe(ansprechpartner, use_container_width=True)
+        st.dataframe(dokument, use_container_width=True)
+        for eintrag in dokument:
+            st.download_button(
+                label=f"{eintrag['dateiname']} Herunterladen",
+                data=eintrag["datei"],
+                file_name=eintrag["dateiname"],
+                mime=eintrag["dateityp"]
+            )
+
     st.title("Notiz erstellen")
     with st.form("notiz_erstellen"):
         notiz=st.text_input("Notiz schreiben")
@@ -190,21 +211,24 @@ if st.session_state["rolle"] == "bearbeiter":
         connection.commit()
         cursor.close()
         connection.close()
-    st.title("Downloads")
-    with st.form("download"):
-        dokument_id=st.number_input("Dokument_Id")
-        submit = st.form_submit_button("Download")
-    if submit:
-        dokument = download_file(dokument_id)
-        if dokument is not None:
+    st.title("Dokumente")
+    antrag_id= st.number_input("antrag_id")
+
+    if st.button("Suchen...."):
+        dokumente = get_documents_for_antrag(antrag_id)
+
+        for dokument in dokumente:
+            st.write(dokument["dateiname"])
+
             st.download_button(
-                label="Dokument herunterladen",
+                label="Herunterladen",
                 data=dokument["datei"],
                 file_name=dokument["dateiname"],
                 mime=dokument["dateityp"]
             )
+
     #Hier gibt es die Funktion einen neuen Mentor anzulegen
-    st.title("Mentor anlegen")
+    st.title("Neuen Mentor anlegen")
     with st.form("mentor_form"):
         vorname = st.text_input("Vorname")
         nachname = st.text_input("Nachname")
