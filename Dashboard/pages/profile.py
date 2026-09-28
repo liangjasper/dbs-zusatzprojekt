@@ -2,6 +2,7 @@ import streamlit as st
 from components.upload import uploade_file, lebenslauf_eintrag, download_file
 from components.build_join_team import build_team,join_team
 from database.connection import get_connection
+import pandas as pd
 st.title("Profil")
 if st.button("Abmelden"):
     st.session_state["eingeloggt"] = None
@@ -97,6 +98,36 @@ if st.session_state["rolle"] == "gruender":
         if document_id is not None:
             st.success("Dokument wurde erfolgreich in der Datenbank gespeichert!")
 
+    st.title("Anträge und andere Daten")
+
+    connection_antrag = get_connection()
+    cursor_antrag = connection_antrag.cursor()
+
+    # SQL-Abfrage holt alle Anträge, bei denen die team_id mit der team_id des Gründers übereinstimmt
+    sql_uebersicht = """
+        SELECT a.antrag_id, a.gruendungstitel, a.programm, a.status, a.einreichungsdatum
+        FROM antrag a
+        JOIN gruender g ON a.team_id = g.team_id
+        WHERE g.gruender_id = %s
+        ORDER BY a.einreichungsdatum DESC
+    """
+    cursor_antrag.execute(sql_uebersicht, (st.session_state["gruender_id"],))
+    antraege = cursor_antrag.fetchall()
+
+    cursor_antrag.close()
+    connection_antrag.close()
+
+    if antraege:
+        # Daten in ein Pandas DataFrame umwandeln
+        df_antraege = pd.DataFrame(
+            antraege,
+            columns=["Antrag ID", "Gründungstitel", "Programm", "Status", "Einreichungsdatum"]
+        )
+        # Tabelle anzeigen
+        st.dataframe(df_antraege, use_container_width=True)
+    else:
+        st.info("Dein Team hat bisher noch keine Anträge eingereicht, oder du bist noch keinem Team beigetreten.")
+
 #-------------- Funktionen im Profil des Bearbeiters--------------------
 if st.session_state["rolle"] == "bearbeiter":
     st.title("Alle Anträge")
@@ -172,9 +203,7 @@ if st.session_state["rolle"] == "bearbeiter":
                 file_name=dokument["dateiname"],
                 mime=dokument["dateityp"]
             )
-
-#------------- Funktionen im Profil des Ansprechpartners-----------------------------
-if st.session_state["rolle"] == "ansprechpartner":
+    #Hier gibt es die Funktion einen neuen Mentor anzulegen
     st.title("Mentor anlegen")
     with st.form("mentor_form"):
         vorname = st.text_input("Vorname")
@@ -198,7 +227,7 @@ if st.session_state["rolle"] == "ansprechpartner":
                           VALUES (%s, %s, %s, %s) \
                           """
 
-                    cursor.execute(sql,( vorname, nachname, email, telefon))
+                    cursor.execute(sql, (vorname, nachname, email, telefon))
                     connection.commit()
 
                     st.success("Mentor wurde erfolgreich angelegt.")
@@ -210,3 +239,34 @@ if st.session_state["rolle"] == "ansprechpartner":
                     cursor.close()
                     connection.close()
 
+#------------- Funktionen im Profil des Ansprechpartners-----------------------------
+if st.session_state["rolle"] == "ansprechpartner":
+
+    st.title("Alle von dir eingerreichten Anträge")
+    connection_antrag = get_connection()
+    cursor_antrag = connection_antrag.cursor()
+
+    # Holt alle Anträge, die zur Einrichtung des eingeloggten Ansprechpartners gehören
+    sql_uebersicht = """
+        SELECT a.antrag_id, a.gruendungstitel, a.programm, a.status, a.einreichungsdatum
+        FROM antrag a
+        JOIN ansprechpartner ap ON a.einrichtung_id = ap.einrichtung_id
+        WHERE ap.ansprechpartner_id = %s
+        ORDER BY a.einreichungsdatum DESC
+    """
+    cursor_antrag.execute(sql_uebersicht, (st.session_state["ansprechpartner_id"],))
+    antraege = cursor_antrag.fetchall()
+
+    cursor_antrag.close()
+    connection_antrag.close()
+
+    if antraege:
+        # Daten in ein Pandas DataFrame umwandeln für eine schöne Tabellenansicht
+        df_antraege = pd.DataFrame(
+            antraege,
+            columns=["Antrag ID", "Gründungstitel", "Programm", "Status", "Einreichungsdatum"]
+        )
+        # Tabelle in Streamlit anzeigen
+        st.dataframe(df_antraege, use_container_width=True)
+    else:
+        st.info("Bisher wurden noch keine Anträge für deine Einrichtung eingereicht.")
