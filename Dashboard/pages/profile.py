@@ -101,7 +101,7 @@ if st.session_state["rolle"] == "gruender":
     connection_antrag.close()
 
     if not antraege:
-        st.info("Bisher wurden noch keine Anträge für deine Einrichtung eingereicht.")
+        st.warning("Bisher wurden noch keine Anträge für deine Einrichtung eingereicht.")
 
     else:
         st.subheader("Übersicht der Anträge")
@@ -173,10 +173,8 @@ if st.session_state["rolle"] == "bearbeiter":
         submit = st.form_submit_button("Als Bearbeiter eintragen")
 
     if submit:
-
         connection = get_connection()
         cursor = connection.cursor()
-
         sql = """
               UPDATE antrag
               SET bearbeiter_id = %s
@@ -189,20 +187,57 @@ if st.session_state["rolle"] == "bearbeiter":
         st.success("Als bearbeiter eintragen!")
         st.rerun()
 
-    st.title("kompletten Antrag anzeigen lassen")
+    st.title("Antragsstatus ändern")
+    with st.form("antragstatus_aendern_form"):
+        antrag_id = st.number_input("Antrags-ID eintragen",min_value=1,step=1)
+        status = st.selectbox(
+            "Neuer Status",
+            [
+                "eingereicht",
+                "in_pruefung",
+                "in_korrektur",
+                "bewilligt",
+                "abgelehnt"
+            ]
+        )
+        submit = st.form_submit_button("Status ändern")
+    if submit:
+        connection = get_connection()
+        cursor = connection.cursor()
+        sql = """
+            UPDATE antrag
+            SET status = %s
+            WHERE antrag_id = %s
+        """
+        cursor.execute(sql,(status, antrag_id))
+        connection.commit()
+        cursor.close()
+        connection.close()
+        st.rerun()
+    st.title("Vollständige Anträge anzeigen lassen")
     with st.form("kompletten_antrag_form"):
-        antrag_id = st.number_input("Hier antrags_id eintragen")
+        antrag_id = st.number_input("Hier antrags_id eintragen", min_value=1,step=1)
         submit= st.form_submit_button("Antrag anzeigen")
     if submit:
         st.session_state["antrag_id"] = antrag_id
 
     if "antrag_id" in st.session_state:
         antrag, gruender, notiz, ansprechpartner, dokument = get_antrag(antrag_id)
+        st.subheader("Antrag")
         st.dataframe(antrag, use_container_width=True)
+
+        st.subheader("Gruender")
         st.dataframe(gruender, use_container_width=True)
+
+        st.subheader("Notiz")
         st.dataframe(notiz, use_container_width=True)
+
+        st.subheader("Ansprechpartner")
         st.dataframe(ansprechpartner, use_container_width=True)
+
+        st.subheader("Hochgeladenene Dokumente")
         st.dataframe(dokument, use_container_width=True)
+
         for eintrag in dokument:
             st.download_button(
                 label=f"{eintrag['dateiname']} Herunterladen",
@@ -210,39 +245,28 @@ if st.session_state["rolle"] == "bearbeiter":
                 file_name=eintrag["dateiname"],
                 mime=eintrag["dateityp"]
             )
+        collapse = st.button("Antrag schließen")
+        if collapse:
+            del st.session_state["antrag_id"]
+            st.rerun()
 
     st.title("Notiz erstellen")
     with st.form("notiz_erstellen"):
         notiz=st.text_input("Notiz schreiben")
-        antrag_id = st.number_input("Antrags-ID schreiben")
+        antrag_id = st.number_input("Antrags-ID", min_value=1,step=1)
+        dokument_id = st.number_input("Dokument-ID", min_value=1, step=1)
         submit = st.form_submit_button("Notiz anlegen")
     if submit:
         connection = get_connection()
         cursor = connection.cursor()
         sql = """
-              INSERT INTO notiz (antrag_id, inhalt) 
-              VALUE(%s, %s)
+              INSERT INTO notiz (antrag_id, inhalt, dokument) 
+              VALUE(%s, %s, %s)
         """
-        cursor.execute(sql,(antrag_id,notiz))
+        cursor.execute(sql,(antrag_id, notiz, dokument_id))
         connection.commit()
         cursor.close()
         connection.close()
-    st.title("Dokumente")
-    antrag_id= st.number_input("antrag_id")
-
-    if st.button("Suchen...."):
-        dokumente = get_documents_for_antrag(antrag_id)
-
-        for dokument in dokumente:
-            st.write(dokument["dateiname"])
-
-            st.download_button(
-                label="Herunterladen",
-                data=dokument["datei"],
-                file_name=dokument["dateiname"],
-                mime=dokument["dateityp"]
-            )
-
     #Hier gibt es die Funktion einen neuen Mentor anzulegen
     st.title("Neuen Mentor anlegen")
     with st.form("mentor_form"):
