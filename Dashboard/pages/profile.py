@@ -32,12 +32,9 @@ if st.session_state["rolle"] == "gruender":
     connection = get_connection()
     cursor = connection.cursor()
 
-    cursor.execute(
-        "SELECT einrichtung_id, name FROM forschungseinrichtung"
-    )
+    cursor.execute("SELECT einrichtung_id, name FROM forschungseinrichtung")
 
     einrichtung_liste = cursor.fetchall()
-
     cursor.close()
     connection.close()
 
@@ -47,11 +44,7 @@ if st.session_state["rolle"] == "gruender":
     }
     st.write("Hier kannst du ein neues Team gründen")
     with st.form("team_form"):
-
-        selected_einrichtung_label = st.selectbox(
-            "Forschungseinrichtung",
-            options=["Bitte wählen..."] + list(einrichtung_dict.keys())
-        )
+        selected_einrichtung_label = st.selectbox("Forschungseinrichtung",options=["Bitte wählen..."] + list(einrichtung_dict.keys()))
         team_name=st.text_input("Team Name")
         submitted = st.form_submit_button("Team gründen")
 
@@ -62,28 +55,17 @@ if st.session_state["rolle"] == "gruender":
 
             else:
                 einrichtung_id = einrichtung_dict[selected_einrichtung_label]
-
                 team_id = build_team(einrichtung_id,team_name)
+                st.success(f"Team gegründet! Team-ID: {team_id, team_name}")
 
-                st.success(
-                    f"Team gegründet! Team-ID: {team_id, team_name}"
-                )
     st.write("Hier kannst du einem Team beitreten")
     with st.form("join_team_form"):
-        team_id = st.number_input(
-            "Team-ID",
-            min_value=1,
-            step=1
-        )
-
+        team_id = st.number_input("Team-ID",min_value=1,step=1)
         submitted = st.form_submit_button("Team beitreten")
 
         if submitted:
             join_team(team_id)
-
-            st.success(
-                f"Du bist Team {team_id} beigetreten!"
-            )
+            st.success(f"Du bist Team {team_id} beigetreten!")
 
     #Uploader für den Lebenslauf
     uploaded_file = st.file_uploader(
@@ -102,9 +84,9 @@ if st.session_state["rolle"] == "gruender":
     st.title("Anträge und andere Daten")
 
     connection_antrag = get_connection()
-    cursor_antrag = connection_antrag.cursor()
+    cursor_antrag = connection_antrag.cursor(dictionary=True)
 
-    # SQL-Abfrage holt alle Anträge, bei denen die team_id mit der team_id des Gründers übereinstimmt
+    # Abfrage holt alle Anträge, bei denen die team_id mit der team_id des Gründers übereinstimmt
     sql_uebersicht = """
         SELECT a.antrag_id, a.gruendungstitel, a.programm, a.status, a.einreichungsdatum
         FROM antrag a
@@ -118,16 +100,61 @@ if st.session_state["rolle"] == "gruender":
     cursor_antrag.close()
     connection_antrag.close()
 
-    if antraege:
-        # Daten in ein Pandas DataFrame umwandeln
-        df_antraege = pd.DataFrame(
-            antraege,
-            columns=["Antrag ID", "Gründungstitel", "Programm", "Status", "Einreichungsdatum"]
-        )
-        # Tabelle anzeigen
-        st.dataframe(df_antraege, use_container_width=True)
+    if not antraege:
+        st.info("Bisher wurden noch keine Anträge für deine Einrichtung eingereicht.")
+
     else:
-        st.info("Dein Team hat bisher noch keine Anträge eingereicht, oder du bist noch keinem Team beigetreten.")
+        st.subheader("Übersicht der Anträge")
+        df_antraege = pd.DataFrame(antraege)
+        st.dataframe(df_antraege,use_container_width=True,hide_index=True)
+        optionen = {
+            f"Antrag {a['antrag_id']} – {a['gruendungstitel']}":
+                a["antrag_id"]
+            for a in antraege
+        }
+
+        auswahl = st.selectbox(
+            "Welchen Antrag möchtest du öffnen?",
+            options=list(optionen.keys())
+        )
+        if st.button("Antrag anzeigen"):
+            st.session_state["ausgewaehlter_antrag"] = optionen[auswahl]
+            st.rerun()
+
+    if "ausgewaehlter_antrag" in st.session_state:
+        antrag_id = st.session_state["ausgewaehlter_antrag"]
+        st.divider()
+        st.header(f"Details zu Antrag {antrag_id}")
+
+        antrag, gruender, notiz, ansprechpartner, dokument = get_antrag(antrag_id)
+
+        st.subheader("Antragsdaten")
+        st.dataframe(antrag, use_container_width=True, hide_index=True)
+
+        st.subheader("Gründerdaten")
+        st.dataframe(gruender, use_container_width=True, hide_index=True)
+
+        st.subheader("Notiz zum Antrag")
+        st.dataframe(notiz, use_container_width=True, hide_index=True)
+
+        st.subheader("Ansprechpartner")
+        st.dataframe( pd.DataFrame(ansprechpartner)[["vorname", "nachname", "email"]],use_container_width=True,hide_index=True)
+
+        st.subheader("Hochgeladene Dokumente")
+        st.dataframe(dokument, use_container_width=True,hide_index=True)
+
+        for eintrag in dokument:
+            st.download_button(
+                label=f"{eintrag['dateiname']} herunterladen",
+                data=eintrag["datei"],
+                file_name=eintrag["dateiname"],
+                mime=eintrag["dateityp"],
+                key=f"download_{antrag_id}_{eintrag['dateiname']}"
+            )
+        # Auswahl wieder zurücksetzen
+        if st.button("Antrag schließen"):
+            del st.session_state["ausgewaehlter_antrag"]
+            st.rerun()
 
 #-------------- Funktionen im Profil des Bearbeiters--------------------
 if st.session_state["rolle"] == "bearbeiter":
@@ -142,14 +169,8 @@ if st.session_state["rolle"] == "bearbeiter":
 
     st.title("Als Bearbeiter in Antrag eintragen")
     with st.form("bearbeiter_antrag_form"):
-        antrag_id = st.number_input(
-            "Antrags-ID eintragen",
-            min_value=1,
-            step=1
-        )
-        submit = st.form_submit_button(
-            "Als Bearbeiter eintragen"
-        )
+        antrag_id = st.number_input("Antrags-ID eintragen",min_value=1,step=1)
+        submit = st.form_submit_button("Als Bearbeiter eintragen")
 
     if submit:
 
@@ -161,18 +182,13 @@ if st.session_state["rolle"] == "bearbeiter":
               SET bearbeiter_id = %s
               WHERE antrag_id = %s \
               """
-        cursor.execute(
-            sql,
-            (
-                st.session_state["bearbeiter_id"],
-                antrag_id
-            )
-        )
+        cursor.execute(sql,(st.session_state["bearbeiter_id"],antrag_id))
         connection.commit()
         cursor.close()
         connection.close()
         st.success("Als bearbeiter eintragen!")
         st.rerun()
+
     st.title("kompletten Antrag anzeigen lassen")
     with st.form("kompletten_antrag_form"):
         antrag_id = st.number_input("Hier antrags_id eintragen")
@@ -264,13 +280,13 @@ if st.session_state["rolle"] == "bearbeiter":
                     connection.close()
 
 #------------- Funktionen im Profil des Ansprechpartners-----------------------------
+
 if st.session_state["rolle"] == "ansprechpartner":
 
-    st.title("Alle von dir eingerreichten Anträge")
+    st.title("Alle von dir eingereichten Anträge")
     connection_antrag = get_connection()
-    cursor_antrag = connection_antrag.cursor()
+    cursor_antrag = connection_antrag.cursor(dictionary=True)
 
-    # Holt alle Anträge, die zur Einrichtung des eingeloggten Ansprechpartners gehören
     sql_uebersicht = """
         SELECT a.antrag_id, a.gruendungstitel, a.programm, a.status, a.einreichungsdatum
         FROM antrag a
@@ -278,19 +294,66 @@ if st.session_state["rolle"] == "ansprechpartner":
         WHERE ap.ansprechpartner_id = %s
         ORDER BY a.einreichungsdatum DESC
     """
-    cursor_antrag.execute(sql_uebersicht, (st.session_state["ansprechpartner_id"],))
-    antraege = cursor_antrag.fetchall()
 
+    cursor_antrag.execute(sql_uebersicht,(st.session_state["ansprechpartner_id"],))
+    antraege = cursor_antrag.fetchall()
     cursor_antrag.close()
     connection_antrag.close()
 
-    if antraege:
-        # Daten in ein Pandas DataFrame umwandeln für eine schöne Tabellenansicht
-        df_antraege = pd.DataFrame(
-            antraege,
-            columns=["Antrag ID", "Gründungstitel", "Programm", "Status", "Einreichungsdatum"]
-        )
-        # Tabelle in Streamlit anzeigen
-        st.dataframe(df_antraege, use_container_width=True)
+
+    if not antraege:
+        st.warning("Bisher wurden noch keine Anträge für deine Einrichtung eingereicht.")
+
     else:
-        st.info("Bisher wurden noch keine Anträge für deine Einrichtung eingereicht.")
+        st.subheader("Übersicht der Anträge")
+        df_antraege = pd.DataFrame(antraege)
+        st.dataframe(df_antraege,use_container_width=True,hide_index=True)
+        optionen = {
+            f"Antrag {a['antrag_id']} – {a['gruendungstitel']}":
+                a["antrag_id"]
+            for a in antraege
+        }
+
+        auswahl = st.selectbox(
+            "Welchen Antrag möchtest du öffnen?",
+            options=list(optionen.keys())
+        )
+        if st.button("Antrag anzeigen"):
+            st.session_state["ausgewaehlter_antrag"] = optionen[auswahl]
+            st.rerun()
+
+    if "ausgewaehlter_antrag" in st.session_state:
+
+        antrag_id = st.session_state["ausgewaehlter_antrag"]
+        st.divider()
+        st.header(f"Details zu Antrag {antrag_id}")
+
+        antrag, gruender, notiz, ansprechpartner, dokument = get_antrag(antrag_id)
+
+        st.subheader("Antragsdaten")
+        st.dataframe(antrag,use_container_width=True, hide_index=True)
+
+        st.subheader("Gründerdaten")
+        st.dataframe(gruender, use_container_width=True, hide_index=True)
+
+        st.subheader("Notiz zum Antrag")
+        st.dataframe(notiz,use_container_width=True, hide_index=True)
+
+        st.subheader("Ansprechpartner")
+        st.dataframe(pd.DataFrame(ansprechpartner)[["vorname", "nachname", "email"]], use_container_width=True, hide_index=True)
+
+        st.subheader("Hochgeladene Dokumente")
+        st.dataframe(dokument,use_container_width=True, hide_index=True)
+        for eintrag in dokument:
+            st.download_button(
+                label=f"{eintrag['dateiname']} herunterladen",
+                data=eintrag["datei"],
+                file_name=eintrag["dateiname"],
+                mime=eintrag["dateityp"],
+                key=f"download_{antrag_id}_{eintrag['dateiname']}"
+            )
+        # Auswahl wieder zurücksetzen
+        if st.button("Antrag schließen"):
+            del st.session_state["ausgewaehlter_antrag"]
+            st.rerun()
+
