@@ -4,11 +4,11 @@ from components.build_join_team import build_team,join_team
 from database.connection import get_connection
 from components.antrags_funktionen import get_antrag
 import pandas as pd
-
+#-------------------------------------------------------------------------
 # Dieser Datei ist für das Management der einzelnen Profile zuständig.
 # Hier werden die einzelnen Privilegien und Funktionen der Nutzer "Ansprechpartner", "Gründer" und "Bearbeiter" definiert
 # Der Bereich ist erst nach der Registrierung und anschließenden Anmeldung erreichbar
-
+#--------------------------------------------------------------------------
 
 st.title("Profil")
 # Funktion um einen Nutzer von seinem Profil abzumelden

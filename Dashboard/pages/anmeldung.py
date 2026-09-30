@@ -3,10 +3,16 @@ from database.benutzer import benutzer_anmelden, ansprechpartner_anlegen, bearbe
 from database.connection import get_connection
 from datetime import datetime, date
 from components.form_values import form_value_ansprechpartner, form_value
-#Seite die für die Anmeldung und Registrierung zuständig ist.
+
+#-------------------------------------------------------------------------------
+# anmeldung.py ist für die Anmeldung und Registrierung zuständig.
+# Es gibt Formulare für das Registrieren als Benutzer mit einer spezifischen Rolle "Ansprechpartner", "Bearbeiter", "Gründer"
+# Nach der Registrierung kann man sich mit seiner angegebenen E-Mail und dem Passwort anmelden und erhält Zugriff auf die Funktionen die in profil.py definiert sind
+#-------------------------------------------------------------------------------
+
 st.title("Anmeldung")
 
-#gibt das Anmeldeformular aus, wenn noch niemand eingeloggt ist und Speichert die Anmeldung als session_state und updatet in der Datenbank Tabelle: "benutzer" die Spalte: "letzer_login"
+#gibt das Anmeldeformular aus, wenn noch niemand eingeloggt ist und speichert die Anmeldung als session_state und updatet in der Datenbank Tabelle: "benutzer" die Spalte: "letzer_login"
 if not st.session_state.get("eingeloggt", False):
     email = st.text_input("E-Mail")
     passwort = st.text_input(
@@ -56,7 +62,9 @@ else:
 
 
 
-#Registriert einen neuen Benutzer je nach eingetragener Rolle. Ein Eintrag in einer der Tabellen von "Ansprechpartner", "gruenderteam", "bearbeiter" wird erstellt und die ID wird mit in die benutzer Tabelle übernommen und ein Eintrag angelegt
+# Registriert einen neuen Benutzer je nach eingetragener Rolle.
+# Ein Eintrag in einer der Tabellen von "ansprechpartner", "gruenderteam", "bearbeiter" wird erstellt
+# und die ID wird mit in die benutzer Tabelle übernommen und ein Eintrag angelegt
 st.title("Registrieren")
 
 rolle_registrierung = st.selectbox(
@@ -64,12 +72,8 @@ rolle_registrierung = st.selectbox(
     ["Ansprechpartner", "gruender", "bearbeiter"]
 )
 
-
-
 if rolle_registrierung == "Ansprechpartner":
-
     with st.form("form_ansprechpartner"):
-
         email = st.text_input("E-Mail")
         passwort = st.text_input(
             "Passwort",
@@ -81,16 +85,11 @@ if rolle_registrierung == "Ansprechpartner":
         strasse = st.text_input("Strasse")
         telefon = st.text_input("Telefon")
 
-
         connection = get_connection()
         cursor = connection.cursor()
-
-        cursor.execute(
-            "SELECT plz, ort FROM plz_ort"
-        )
+        cursor.execute("SELECT plz, ort FROM plz_ort")
 
         plz_liste = cursor.fetchall()
-
         cursor.close()
         connection.close()
 
@@ -106,17 +105,12 @@ if rolle_registrierung == "Ansprechpartner":
             ] + list(plz_dict.keys())
         )
 
-
-
         connection = get_connection()
         cursor = connection.cursor()
 
-        cursor.execute(
-            "SELECT einrichtung_id, name FROM forschungseinrichtung"
-        )
+        cursor.execute("SELECT einrichtung_id, name FROM forschungseinrichtung")
 
         einrichtung_liste = cursor.fetchall()
-
         cursor.close()
         connection.close()
 
@@ -132,11 +126,7 @@ if rolle_registrierung == "Ansprechpartner":
             ] + list(einrichtung_dict.keys())
         )
 
-        registrieren = st.form_submit_button(
-            "Registrieren"
-        )
-
-
+        registrieren = st.form_submit_button("Registrieren")
 
     if registrieren:
 
@@ -168,30 +158,19 @@ if rolle_registrierung == "Ansprechpartner":
             "Ansprechpartner"
         )
 
-        st.success(
-            "Registrierung als Ansprechpartner erfolgreich"
-        )
+        st.success("Registrierung als Ansprechpartner erfolgreich")
 
 
 
 elif rolle_registrierung == "bearbeiter":
 
     with st.form("form_bearbeiter"):
-
         email = st.text_input("E-Mail")
-
-        passwort = st.text_input(
-            "Passwort",
-            type="password"
-        )
-
+        passwort = st.text_input("Passwort",type="password")
         vorname = st.text_input("Vorname")
         nachname = st.text_input("Nachname")
 
-        registrieren = st.form_submit_button(
-            "Registrieren"
-        )
-
+        registrieren = st.form_submit_button("Registrieren")
 
     if registrieren:
 
@@ -203,9 +182,7 @@ elif rolle_registrierung == "bearbeiter":
             "bearbeiter"
         )
 
-        st.success(
-            "Registrierung als Bearbeiter erfolgreich"
-        )
+        st.success("Registrierung als Bearbeiter erfolgreich")
 
 
 elif rolle_registrierung == "gruender":
@@ -215,14 +192,9 @@ elif rolle_registrierung == "gruender":
 
         email = st.text_input("E-Mail")
 
-        passwort = st.text_input(
-            "Passwort",
-            type="password"
-        )
-
+        passwort = st.text_input("Passwort", type="password")
         vorname = st.text_input("Vorname")
         nachname = st.text_input("Nachname")
-
         geburtsdatum = st.date_input(
             "Geburtsdatum",
             None,
@@ -232,16 +204,10 @@ elif rolle_registrierung == "gruender":
         )
 
         strasse = st.text_input("Strasse")
-
         connection = get_connection()
         cursor = connection.cursor()
-
-        cursor.execute(
-            "SELECT plz, ort FROM plz_ort"
-        )
-
+        cursor.execute("SELECT plz, ort FROM plz_ort")
         plz_liste = cursor.fetchall()
-
         cursor.close()
         connection.close()
 
@@ -259,27 +225,11 @@ elif rolle_registrierung == "gruender":
 
 
         telefon = st.text_input("Telefon")
-
-        nationalitaet = st.text_input(
-            "Nationalität"
-        )
+        nationalitaet = st.text_input("Nationalität")
 
         anzahl_kinder = st.selectbox(
             "Anzahl der Kinder",
-            [
-                None,
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9
-            ]
-        )
+            [None,0,1,2,3,4,5,6,7,8,9])
 
         hochschulstatus = st.selectbox(
             "Hochschulstatus",
@@ -293,9 +243,7 @@ elif rolle_registrierung == "gruender":
             ],
         )
 
-        registrieren = st.form_submit_button(
-            "Registrieren"
-        )
+        registrieren = st.form_submit_button("Registrieren")
 
 
     if registrieren:
@@ -319,11 +267,5 @@ elif rolle_registrierung == "gruender":
             "Hochschulstatus": hochschulstatus
         }
 
-        gruender_anlegen(
-            form_value,
-            "gruender"
-        )
-
-        st.success(
-            "Registrierung als Gründer erfolgreich"
-        )
+        gruender_anlegen(form_value,"gruender")
+        st.success("Registrierung als Gründer erfolgreich")
