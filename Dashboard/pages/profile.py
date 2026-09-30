@@ -4,7 +4,14 @@ from components.build_join_team import build_team,join_team
 from database.connection import get_connection
 from components.antrags_funktionen import get_antrag
 import pandas as pd
+
+# Dieser Datei ist für das Management der einzelnen Profile zuständig.
+# Hier werden die einzelnen Privilegien und Funktionen der Nutzer "Ansprechpartner", "Gründer" und "Bearbeiter" definiert
+# Der Bereich ist erst nach der Registrierung und anschließenden Anmeldung erreichbar
+
+
 st.title("Profil")
+# Funktion um einen Nutzer von seinem Profil abzumelden
 if st.button("Abmelden"):
     st.session_state["eingeloggt"] = None
     st.session_state["benutzer_id"] = None
@@ -13,7 +20,7 @@ if st.button("Abmelden"):
     st.rerun()
 
 st.title("Persönliche Daten")
-
+# Persönliche Daten(Benutzer_id, email, Rolle und entsprechende IDs des angemeldeten Benutzers werden auf der Seite angezeigt.
 st.write("Benutzer: ", st.session_state["benutzer_id"])
 st.write("Email: ", st.session_state["email"])
 st.write("Rolle: ",st.session_state["rolle"])
@@ -23,12 +30,19 @@ elif st.session_state["rolle"] == "gruender":
     st.write("Gründer ID:" ,st.session_state["gruender_id"])
 elif st.session_state["rolle"] == "ansprechpartner":
     st.write("Ansprechpartner ID" ,st.session_state["ansprechpartner_id"])
-st.write("Hier stehen bald weitere Perönlichen Daten")
+
 
 #--------------Funktionen im Profil des Gründers--------------------------------
-if st.session_state["rolle"] == "gruender":
-    st.title("Team")
+# Der Gründer hat die Möglichkeit in seinem Profil:
+# 1. ein neues Team zu gründen
+# 2. einem bestehenden Team beizutreten
+# 3. seinen Lebenslauf hochzuladen
+# 4. Anträge die für ihn eingereicht wurden einzusehen
 
+if st.session_state["rolle"] == "gruender":
+
+    st.title("Team")
+    # funktionen und
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -43,6 +57,8 @@ if st.session_state["rolle"] == "gruender":
         for row in einrichtung_liste
     }
     st.write("Hier kannst du ein neues Team gründen")
+
+    # Die Form um ein neues Team zu Gründen wird hier bereitgestellt
     with st.form("team_form"):
         selected_einrichtung_label = st.selectbox("Forschungseinrichtung",options=["Bitte wählen..."] + list(einrichtung_dict.keys()))
         team_name=st.text_input("Team Name")
@@ -58,6 +74,7 @@ if st.session_state["rolle"] == "gruender":
                 team_id = build_team(einrichtung_id,team_name)
                 st.success(f"Team gegründet! Team-ID: {team_id, team_name}")
 
+    # Die Form einem Team beizutreten wird hier bereitgestellt
     st.write("Hier kannst du einem Team beitreten")
     with st.form("join_team_form"):
         team_id = st.number_input("Team-ID",min_value=1,step=1)
@@ -67,7 +84,7 @@ if st.session_state["rolle"] == "gruender":
             join_team(team_id)
             st.success(f"Du bist Team {team_id} beigetreten!")
 
-    #Uploader für den Lebenslauf
+    # Uploader für den Lebenslauf
     uploaded_file = st.file_uploader(
         "Lebenslauf hochladen",
         type=["pdf", "docx", "png", "jpg"]
@@ -82,11 +99,10 @@ if st.session_state["rolle"] == "gruender":
             st.success("Dokument wurde erfolgreich in der Datenbank gespeichert!")
 
     st.title("Anträge und andere Daten")
-
+    # Hier werden alle Anträge die für den Gründer eingereicht wurden angezeigt
     connection_antrag = get_connection()
     cursor_antrag = connection_antrag.cursor(dictionary=True)
 
-    # Abfrage holt alle Anträge, bei denen die team_id mit der team_id des Gründers übereinstimmt
     sql_uebersicht = """
         SELECT a.antrag_id, a.gruendungstitel, a.programm, a.status, a.einreichungsdatum
         FROM antrag a
@@ -157,6 +173,13 @@ if st.session_state["rolle"] == "gruender":
             st.rerun()
 
 #-------------- Funktionen im Profil des Bearbeiters--------------------
+# Im Profil des Bearbeiters gibt es die funktionen:
+# 1. Als Bearbeiter für einen Antrag einzutragen
+# 2. Antragsstatus eines Antrags zu ändern
+# 3. Anträge vollständig anzuzeigen
+# 4. Notiz für einen Antrag zu erstellen
+# 5. Neuen Mentor anzulegen
+
 if st.session_state["rolle"] == "bearbeiter":
     st.title("Alle Anträge")
     connection = get_connection()
@@ -303,8 +326,29 @@ if st.session_state["rolle"] == "bearbeiter":
                     cursor.close()
                     connection.close()
 
-#------------- Funktionen im Profil des Ansprechpartners-----------------------------
+    st.title("Anträge pro Förderprogramm und Status")
+    connection = get_connection()
+    cursor = connection.cursor(dictionary=True)
+    sql = """
+        SELECT
+            programm,
+            status,
+            COUNT(*) AS anzahl_antraege
+            FROM antrag
+            GROUP BY programm, status
+            ORDER BY programm, status;
+    """
+    cursor.execute(sql)
+    ergebnisse = cursor.fetchall()
+    df = pd.DataFrame(ergebnisse)
+    st.dataframe(df, use_container_width=True)
 
+
+#------------- Funktionen im Profil des Ansprechpartners-----------------------------
+# Im Profil des Ansprechpartners gibt es die Funktionen:
+# 1. Alle selbst eingereichten Anträge anzusehen
+# Anträge stellt derAnsprechpartner über die pages: exist_forschungstransfer.py, exist_gruendungsfoerderung.py und exist_women.py
+# Diese werden freigeschaltet, wenn eine Person mit Rolle Ansprechpartner sich einloggt
 if st.session_state["rolle"] == "ansprechpartner":
 
     st.title("Alle von dir eingereichten Anträge")
