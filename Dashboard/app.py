@@ -1,15 +1,13 @@
 import streamlit as st
 
+#-------------------------------------------------------------
+# app.py gibt die "pages" und das Layout vor, welches für das Dashboard angezeigt wird
+#-------------------------------------------------------------
 st.set_page_config(
     page_title="EXIST-Gründungsstipendien",
     layout="wide"
 )
 
-#checkt den eingeloggt Status und zeigt die entsprechenden Daten des Eingeloggten
-#if st.session_state.get("eingeloggt",False):
-#    st.write("Benutzer: ", st.session_state["benutzer_id"])
-#    st.write("Email: ", st.session_state["email"])
-#    st.write("Rolle: ",st.session_state["rolle"])
 
 #falls nicht eingeloggt werden formulare gezeigt. Falls eingeloggt wird eine andere Seite gezeigt
 if not st.session_state.get("eingeloggt", False):

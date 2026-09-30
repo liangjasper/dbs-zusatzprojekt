@@ -15,20 +15,16 @@ def build_team(einrichtung_id, team_name):
           VALUES (%s,%s) 
           """
 
-    cursor.execute(sql, (
-        einrichtung_id, team_name
-    ))
+    cursor.execute(sql, (einrichtung_id, team_name))
     team_id = cursor.lastrowid
+
     sql = """
           UPDATE gruender
           SET team_id = %s
           WHERE email = %s
           """
 
-    cursor.execute(sql, (
-        team_id,
-        st.session_state["email"]
-    ))
+    cursor.execute(sql, (team_id, st.session_state["email"]))
     connection.commit()
     cursor.close()
     connection.close()
@@ -45,10 +41,7 @@ def join_team(team_id):
           WHERE email = %s
           """
 
-    cursor.execute(sql, (
-        team_id,
-        st.session_state["email"]
-    ))
+    cursor.execute(sql, (team_id,st.session_state["email"]))
     connection.commit()
     cursor.close()
     connection.close()
