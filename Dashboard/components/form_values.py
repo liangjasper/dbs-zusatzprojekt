@@ -1,4 +1,9 @@
-#enthält alle values für das Ausfüllen der unterschiedlichen formen
+#------------------------------------------------------------------------
+#form_values.py soll beim Anmeldeprozess in "anmledung.py" unterstützen
+# und definiert über ein Dictionary einige Variablen für die Rollen "Gründer" und "Ansprechpartner" zum Zwischenspeichern
+#------------------------------------------------------------------------
+
+
 
 #form_value für Gründer
 form_value = {

@@ -1,6 +1,11 @@
 import streamlit as st
 from database.connection import get_connection
 
+
+#--------------------------------------------------------------------
+# build_join_team enthält Funktionen für "profil.py"
+# Die funktionen werden benutzt, damit sich ein Gründer in ein Team eintragen oder ein neues Team Gründen kann.
+#--------------------------------------------------------------------
 def build_team(einrichtung_id, team_name):
     connection = get_connection()
     cursor = connection.cursor()
@@ -29,7 +34,7 @@ def build_team(einrichtung_id, team_name):
     connection.close()
     return team_id, team_name
 
-#hier arbeite ich dran
+
 def join_team(team_id):
     connection = get_connection()
     cursor = connection.cursor()

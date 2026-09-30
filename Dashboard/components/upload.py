@@ -1,6 +1,10 @@
 import streamlit as st
 from database.connection import get_connection
 
+#-------------------------------------------------------------------------
+# upload.py definiert Funktionen für den Upload und Download von Dateien in die Datenbank.
+
+#-------------------------------------------------------------------------
 
 def uploade_file(uploaded_file):
 

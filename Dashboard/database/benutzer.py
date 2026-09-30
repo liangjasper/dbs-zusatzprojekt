@@ -2,7 +2,11 @@ from database.connection import get_connection
 
 
 #------------------------------------------------------------------
-
+# "benutzer.py" stellt "anmeldung.py" aus "pages" mehrere Funktionen für das Schreiben und Lesen aus der Datenbank zur Verfügung
+# 1. Ansprechpartner anlegen
+# 2. Gründer anlegen
+# 3. Bearbeiter anlegen
+# 4. Benutzer anmelden
 #------------------------------------------------------------------
 def ansprechpartner_anlegen(form_values_ansprechpartner, rolle):
 
