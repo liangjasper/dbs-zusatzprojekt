@@ -48,11 +48,10 @@ with st.form("antrag_form_gruendungsfoerderung"):
         mentor_id = None
 
 
-    team_id = st.number_input(
-        "Team ID",
-        min_value=1,
-        step=1
-    )
+    team_id = st.number_input("Team ID",min_value=1,step=1)
+    bereich = st.text_input("Technischer Bereich")
+    unternehmen = st.selectbox("Unternehmen bereits als Kapitalgesellschaft gegründet?",
+                               options = ["Nein", "Ja"])
     #Dropdown für die Liste an Einrichtungen
     connection = get_connection()
     cursor = connection.cursor()
@@ -116,6 +115,12 @@ if speichern:
             VALUES (%s, %s)
         """
         cursor.execute(sql, (antrag_id,dokument_id))
+        sql = """
+            INSERT INTO gruendungsidee
+            (antrag_id, titel, bereich, unternehmen)
+            VALUES (%s, %s, %s, %s)
+        """
+        cursor.execute(sql, (antrag_id, gruendungstitel, bereich, unternehmen))
         connection.commit()
 
         st.success("Antrag wurde erfolgreich eingereicht.")
