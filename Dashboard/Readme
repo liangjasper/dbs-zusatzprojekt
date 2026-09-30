@@ -1,0 +1,29 @@
+Aufbau des Dashboard
+
+app.py ist die Start/Hauptdatei. In ihr werden die ganzen Pages und das Layout definiert.
+
+Pages
+    "Anmeldung.py"  Bereich zum Registrieren und Anmelden
+    "Startseite.py" Bereich für Informationen
+
+    Nach erfolgreicher Anmeldung:
+    "profil.py"     Bereich mit den meisten und wichtigsten Funktionen für alle Nutzer(Anträge einsehen, Teams beitreten usw.)
+
+    Ist ein Benutzer mit der Rolle "ansprechpartner" angemeldet erhält die Person weiteren Zugriff auf die Seiten
+        "exist_forschungstransfer.py"
+        "exist_gruendungsfoerderung.py"
+        "exist_women.py"
+    welche die Anmeldeformulare für die verschiedenen Programme enthalten
+
+
+Ergänzende Module:
+
+database
+    "benutzer.py" enthält funktionen die relevant für anmeldung.py sind
+    "connection.py" enthält ein Funktion für den verbindungsaufbau mit der Datenbank
+    "queries.py" enthält sql anfragen, welche von keiner  Datei benutzt werden sondern also Hilfe während des Prozesses gedient haben
+components
+    "antrags_funktionen.py" enthält get_antrag und wird in "profile.py" benutzt um jeden Benutzer die Anträge anzuzeigen die mit der Person assoziiert sind
+    "build_join_team.py" ist eine Hilfsfunktion für "profil.py" damit ein Gründer ein neues Team erstellen oder einem bestehenden Team beitreten kann
+    "form_values.py" definiert dictionaries als Hilfe für "anmelden.py"
+    "upload.py" definiert funktionen für den up- und download von Dateien
