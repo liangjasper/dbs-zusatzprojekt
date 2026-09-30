@@ -179,6 +179,7 @@ if st.session_state["rolle"] == "gruender":
 # 3. Anträge vollständig anzuzeigen
 # 4. Notiz für einen Antrag zu erstellen
 # 5. Neuen Mentor anzulegen
+# 6. Anzahl der Anträge pro Förderprogramm und Status anzuzeigen
 
 if st.session_state["rolle"] == "bearbeiter":
     st.title("Alle Anträge")
@@ -330,18 +331,23 @@ if st.session_state["rolle"] == "bearbeiter":
     connection = get_connection()
     cursor = connection.cursor(dictionary=True)
     sql = """
-        SELECT
-            programm,
-            status,
-            COUNT(*) AS anzahl_antraege
-            FROM antrag
-            GROUP BY programm, status
-            ORDER BY programm, status;
-    """
+          SELECT programm, \
+                 status, \
+                 COUNT(*) AS anzahl_antraege
+          FROM antrag
+          GROUP BY programm, status
+          ORDER BY programm, status; \
+          """
     cursor.execute(sql)
     ergebnisse = cursor.fetchall()
     df = pd.DataFrame(ergebnisse)
-    st.dataframe(df, use_container_width=True)
+
+    col1, col2 = st.columns([2, 1])
+    with col1:
+        st.dataframe(df, use_container_width=True)
+    with col2:
+        st.bar_chart(df, x="programm", y="anzahl_antraege", color="status", width=250, height=400,
+                     use_container_width=False)
 
 
 #------------- Funktionen im Profil des Ansprechpartners-----------------------------
