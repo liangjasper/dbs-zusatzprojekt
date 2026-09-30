@@ -12,7 +12,7 @@ st.divider()
 st.header("Wie funktioniert das Portal?")
 st.write("Je nach Benutzerrolle stehen Ihnen nach der Anmeldung unterschiedliche Funktionen zur Verfügung:")
 
-# Abschnitt für Gründer
+# Gründer
 st.subheader("Für Gründer:innen")
 st.write("""
 * **Registrierung:** Erstellen Sie ein Konto und füllen Sie Ihr Profil aus.
@@ -21,7 +21,7 @@ st.write("""
 * **Status:** Verfolgen Sie den aktuellen Bearbeitungsstatus Ihres Antrags über Ihr Profil.
 """)
 
-# Abschnitt für Ansprechpartner
+# Ansprechpartner
 st.subheader("Für Ansprechpartner:innen (Forschungseinrichtungen)")
 st.write("""
 * **Anträge einreichen:** Reichen Sie Anträge für die von Ihnen betreuten Teams ein.
@@ -30,7 +30,7 @@ st.write("""
 * **Übersicht:** Behalten Sie den Überblick über alle eingereichten Anträge Ihrer Einrichtung.
 """)
 
-# Abschnitt für Bearbeiter
+# Bearbeiter
 st.subheader("Für Bearbeiter:innen (Projektträger Jülich)")
 st.write("""
 * **Dashboard:** Nutzen Sie die Statistiken, um Anträge nach Programm und Status auszuwerten.
