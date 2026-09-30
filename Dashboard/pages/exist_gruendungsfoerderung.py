@@ -4,6 +4,12 @@ from database.connection import get_connection
 from components.upload import uploade_file
 
 
+#-------------------------------------------------------------------
+# Diese Seite wird nur für einen benutzer mit der Rolle Ansprechpartner freigeschaltet, wenn die Person eingeloggt ist.
+# Es kann ein Antrag für exist_Gründungsförderung gestellt werden und alle damit verbundenen Dokumente in die Datenbank hochgeladen werden
+#-------------------------------------------------------------------
+
+
 #Formular für die Gründungsförderung
 st.title("Antrag exist Gründungsförderung")
 

@@ -1,6 +1,12 @@
 import streamlit as st
 from database.connection import get_connection
 
+#--------------------------------------------------------------
+# antrags_funktionen.py stellt die Funktion bereit einen kompletten Antrag einzusehen. Teile eines Antrags sind über mehrere Tabellen in der Datenbank verteilt
+# Über get_antrag() sollen diese Teile zusammengeführt und für den Benutzer sichtbar gemacht werden
+# Diese Funktion wird in profile.py von allen drei Rollen "Ansprechpartner", "Gründer", "Bearbeiter" benutzt
+#--------------------------------------------------------------
+
 def get_antrag(antrag_id):
     connection = get_connection()
     cursor = connection.cursor(dictionary=True)
@@ -35,8 +41,10 @@ def get_antrag(antrag_id):
         WHERE antrag_id = %s
         
         """
+
     cursor.execute(sql, (antrag["antrag_id"],))
     notiz = cursor.fetchall()
+
     sql = """
           SELECT *
           FROM ansprechpartner
@@ -44,6 +52,7 @@ def get_antrag(antrag_id):
           """
     cursor.execute(sql, (antrag["einrichtung_id"],))
     ansprechpartner = cursor.fetchall()
+
     if antrag["programm"]=="exist_women":
         sql = """
               SELECT *
@@ -53,7 +62,9 @@ def get_antrag(antrag_id):
                                    WHERE antrag_id = %s) 
               """
         cursor.execute(sql, (antrag["antrag_id"],))
+
     elif antrag["programm"]=="exist_forschungstransfer":
+
         sql = """
               SELECT *
               FROM dokumente
@@ -66,7 +77,9 @@ def get_antrag(antrag_id):
                     FROM exist_forschungstransfer
                     WHERE antrag_id =%s) 
               """
+
         cursor.execute(sql, (antrag["antrag_id"],antrag["antrag_id"]))
+
     elif antrag["programm"]=="exist_gruendungsfoerderung":
         sql = """
               SELECT *
@@ -78,7 +91,6 @@ def get_antrag(antrag_id):
         cursor.execute(sql, (antrag["antrag_id"],))
 
     dokument = cursor.fetchall()
-
     cursor.close()
     connection.close()
 

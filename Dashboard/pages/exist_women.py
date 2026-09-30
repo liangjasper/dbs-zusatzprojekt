@@ -3,11 +3,16 @@ from datetime import date
 from database.connection import get_connection
 from components.upload import uploade_file
 
+#-------------------------------------------------------------------
+# Diese Seite wird nur für einen benutzer mit der Rolle Ansprechpartner freigeschaltet, wenn die Person eingeloggt ist.
+# Es kann ein Antrag für exist_women gestellt werden und alle damit verbundenen Dokumente in die Datenbank hochgeladen werden
+#-------------------------------------------------------------------
 
-#Formular für die Gründungsförderung
+
+# Formular für die Gründungsförderung
 st.title("Antrag exist women")
 
-#Uploader für Files welche benötigt werden um das Formular zu vervollständigen. Z.B. Lebenslauf
+# Uploader für Files welche benötigt werden um das Formular zu vervollständigen. Z.B. Lebenslauf
 st.write("Bitte zuerst motivationspapier hochladen")
 uploaded_file = st.file_uploader(
         "motivationspapier hochladen",
@@ -51,7 +56,7 @@ with st.form("antrag_form_women"):
     unternehmen = st.selectbox("Unternehmen bereits als Kapitalgesellschaft gegründet?",
                                options = ["Nein", "Ja"])
 
-    #Dropdown für die Liste an Einrichtungen
+    # Dropdown für die Liste an Einrichtungen
     connection = get_connection()
     cursor = connection.cursor()
     cursor.execute("SELECT einrichtung_id, name FROM forschungseinrichtung")

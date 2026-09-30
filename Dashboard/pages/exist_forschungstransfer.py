@@ -3,10 +3,16 @@ from datetime import date
 from database.connection import get_connection
 from components.upload import uploade_file
 
-#Formular für die Gründungsförderung
+#-------------------------------------------------------------------
+# Diese Seite wird nur für einen benutzer mit der Rolle Ansprechpartner freigeschaltet, wenn die Person eingeloggt ist.
+# Es kann ein Antrag für exist_forschungstransfer gestellt werden und alle damit verbundenen Dokumente in die Datenbank hochgeladen werden
+#-------------------------------------------------------------------
+
+
+# Formular für die Gründungsförderung
 st.title("Antrag exist forschungstransfer")
 
-#Uploader für Files welche benötigt werden um das Formular zu vervollständigen. Z.B. Lebenslauf
+# Uploader für Files welche benötigt werden um das Formular zu vervollständigen.
 st.write("Bitte zuerst Projektbeschreibung und Businessplan hochladen")
 
 projektbeschreibung = st.file_uploader(
@@ -146,8 +152,6 @@ if speichern:
         st.success("Antrag wurde erfolgreich eingereicht.")
         cursor.close()
         connection.close()
-
-
 
 
 st.write("Informationen zum Forschungstransfer.")
