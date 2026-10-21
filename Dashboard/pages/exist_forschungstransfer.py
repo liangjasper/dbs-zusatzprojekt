@@ -105,11 +105,11 @@ with st.form("antrag_form_forschungstransfer"):
     cursor = connection.cursor(dictionary=True)
     current_user_id = st.session_state["ansprechpartner_id"]
     sql_einrichtung = f"""
-            SELECT f.einrichtung_id, f.name 
-            FROM forschungseinrichtung f
-            JOIN ansprechpartner a ON f.einrichtung_id = a.einrichtung_id
-            WHERE a.ansprechpartner_id = {current_user_id}
-        """
+        SELECT f.einrichtung_id, f.name 
+        FROM forschungseinrichtung f
+        JOIN ansprechpartner a ON f.einrichtung_id = a.einrichtung_id
+        WHERE a.ansprechpartner_id = {current_user_id}
+    """
     cursor.execute(sql_einrichtung)
     einrichtung_data = cursor.fetchone()
     cursor.close()
@@ -137,16 +137,16 @@ if speichern:
         cursor = connection.cursor()
 
         sql = """
-              INSERT INTO antrag
-              (gruendungstitel,
-               status,
-               programm,
-               einreichungsdatum,
-               mentor_id,
-               team_id,
-               einrichtung_id)
-              VALUES (%s, %s, %s, %s, %s, %s, %s) \
-              """
+            INSERT INTO antrag
+            (gruendungstitel,
+            status,
+            programm,
+            einreichungsdatum,
+            mentor_id,
+            team_id,
+            einrichtung_id)
+            VALUES (%s, %s, %s, %s, %s, %s, %s) \
+        """
 
         werte = (
             gruendungstitel,

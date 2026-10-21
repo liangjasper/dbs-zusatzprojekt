@@ -120,11 +120,13 @@ if rolle_registrierung == "Ansprechpartner":
         }
 
         selected_einrichtung_label = st.selectbox(
-            "ID & Einrichtung",
-            options=[
-                "Bitte wählen..."
-            ] + list(einrichtung_dict.keys())
+            "Vorhandene Einrichtung wählen",
+            options=["Bitte wählen..."] + list(einrichtung_dict.keys())
         )
+
+        st.write(" ODER ")
+        neue_einrichtung_name = st.text_input("Neue Einrichtung anlegen")
+        neue_einrichtung_url = st.text_input("URL der neuen Einrichtung")
 
         registrieren = st.form_submit_button("Registrieren")
 
@@ -135,12 +137,22 @@ if rolle_registrierung == "Ansprechpartner":
         else:
             plz = None
 
-        if selected_einrichtung_label != "Bitte wählen...":
-            einrichtung_id = einrichtung_dict[
-                selected_einrichtung_label
-            ]
+        if neue_einrichtung_name.strip():
+            connection_new_ein = get_connection()
+            cursor_new_ein = connection_new_ein.cursor()
+            cursor_new_ein.execute(
+                "INSERT INTO forschungseinrichtung (name, url) VALUES (%s, %s)",
+                (neue_einrichtung_name.strip(), neue_einrichtung_url.strip())
+            )
+            einrichtung_id = cursor_new_ein.lastrowid
+            connection_new_ein.commit()
+            cursor_new_ein.close()
+            connection_new_ein.close()
         else:
-            einrichtung_id = None
+            if selected_einrichtung_label != "Bitte wählen...":
+                einrichtung_id = einrichtung_dict[selected_einrichtung_label]
+            else:
+                einrichtung_id = None
 
         form_value_ansprechpartner = {
             "Email": email,

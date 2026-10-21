@@ -80,10 +80,10 @@ if st.session_state["rolle"] == "gruender":
     connection_team = get_connection()
     cursor_team = connection_team.cursor(dictionary=True)
     sql_teams = """
-                SELECT t.team_id, t.team_name, f.name AS einrichtung_name
-                FROM gruendungsteam t
-                         LEFT JOIN forschungseinrichtung f ON t.einrichtung_id = f.einrichtung_id \
-                """
+        SELECT t.team_id, t.team_name, f.name AS einrichtung_name
+        FROM gruendungsteam t
+                 LEFT JOIN forschungseinrichtung f ON t.einrichtung_id = f.einrichtung_id \
+    """
     cursor_team.execute(sql_teams)
     alle_teams = cursor_team.fetchall()
     cursor_team.close()
@@ -238,7 +238,7 @@ if st.session_state["rolle"] == "bearbeiter":
               UPDATE antrag
               SET bearbeiter_id = %s
               WHERE antrag_id = %s \
-              """
+        """
         cursor.execute(sql,(st.session_state["bearbeiter_id"],antrag_id))
         connection.commit()
         cursor.close()
@@ -342,7 +342,7 @@ if st.session_state["rolle"] == "bearbeiter":
             sql = """
                   INSERT INTO notiz (antrag_id, zeitstempel, inhalt)
                   VALUES (%s, CURRENT_TIMESTAMP, %s) \
-                  """
+            """
             try:
                 cursor.execute(sql, (antrag_id_notiz, notiz))
                 connection.commit()
@@ -373,10 +373,10 @@ if st.session_state["rolle"] == "bearbeiter":
                     cursor = connection.cursor()
 
                     sql = """
-                          INSERT INTO mentor
-                              (vorname, nachname, email, telefon)
-                          VALUES (%s, %s, %s, %s) \
-                          """
+                        INSERT INTO mentor
+                            (vorname, nachname, email, telefon)
+                        VALUES (%s, %s, %s, %s) \
+                    """
 
                     cursor.execute(sql, (vorname, nachname, email, telefon))
                     connection.commit()
@@ -394,13 +394,13 @@ if st.session_state["rolle"] == "bearbeiter":
     connection = get_connection()
     cursor = connection.cursor(dictionary=True)
     sql = """
-          SELECT programm, \
-                 status, \
-                 COUNT(*) AS anzahl_antraege
-          FROM antrag
-          GROUP BY programm, status
-          ORDER BY programm, status; \
-          """
+        SELECT programm, \
+             status, \
+             COUNT(*) AS anzahl_antraege
+        FROM antrag
+        GROUP BY programm, status
+        ORDER BY programm, status; \
+    """
     cursor.execute(sql)
     ergebnisse = cursor.fetchall()
     df = pd.DataFrame(ergebnisse)
