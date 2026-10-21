@@ -76,13 +76,38 @@ if st.session_state["rolle"] == "gruender":
 
     # Die Form einem Team beizutreten wird hier bereitgestellt
     st.write("Hier kannst du einem Team beitreten")
+
+    connection_team = get_connection()
+    cursor_team = connection_team.cursor(dictionary=True)
+    sql_teams = """
+                SELECT t.team_id, t.team_name, f.name AS einrichtung_name
+                FROM gruendungsteam t
+                         LEFT JOIN forschungseinrichtung f ON t.einrichtung_id = f.einrichtung_id \
+                """
+    cursor_team.execute(sql_teams)
+    alle_teams = cursor_team.fetchall()
+    cursor_team.close()
+    connection_team.close()
+
+    team_options = {
+        row["team_id"]: f"{row['team_id']} - {row['team_name']} ({row['einrichtung_name']})"
+        for row in alle_teams
+    }
+
     with st.form("join_team_form"):
-        team_id = st.number_input("Team-ID",min_value=1,step=1)
+        selected_team_id = st.selectbox(
+            "Wähle ein Team aus:",
+            options=list(team_options.keys()),
+            format_func=lambda x: team_options[x],
+            key="join_team_select"
+        )
         submitted = st.form_submit_button("Team beitreten")
 
         if submitted:
-            join_team(team_id)
-            st.success(f"Du bist Team {team_id} beigetreten!")
+            join_team(selected_team_id)
+            team_name_display = team_options[selected_team_id]
+            st.success(f"Du bist erfolgreich dem '{team_name_display}' beigetreten!")
+            st.rerun()
 
     # Uploader für den Lebenslauf
     uploaded_file = st.file_uploader(

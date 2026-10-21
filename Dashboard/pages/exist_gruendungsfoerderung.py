@@ -19,7 +19,7 @@ uploaded_file = st.file_uploader(
         "Ideenpapier hochladen",
         type=["pdf", "docx", "png", "jpg"]
     )
-document_id = None
+dokument_id = None
 if uploaded_file is not None:
     st.success(f"{uploaded_file.name} wurde hochgeladen!")
 
@@ -28,6 +28,27 @@ if uploaded_file is not None:
 
     if dokument_id is not None:
         st.success("Dokument wurde erfolgreich in der Datenbank gespeichert!")
+
+
+connection_team = get_connection()
+cursor_team = connection_team.cursor(dictionary=True)
+current_user_id = st.session_state["ansprechpartner_id"]
+sql_teams = f"""
+    SELECT t.team_id, t.team_name, f.name AS einrichtung_name 
+    FROM gruendungsteam t 
+    JOIN forschungseinrichtung f ON t.einrichtung_id = f.einrichtung_id
+    JOIN ansprechpartner a ON f.einrichtung_id = a.einrichtung_id
+    WHERE a.ansprechpartner_id = {current_user_id}
+"""
+cursor_team.execute(sql_teams)
+alle_teams = cursor_team.fetchall()
+cursor_team.close()
+connection_team.close()
+
+team_options = {
+    row["team_id"]: f"{row['team_id']} - {row['team_name']} ({row['einrichtung_name']})"
+    for row in alle_teams
+}
 
 with st.form("antrag_form_gruendungsfoerderung"):
 
@@ -54,29 +75,36 @@ with st.form("antrag_form_gruendungsfoerderung"):
         mentor_id = None
 
 
-    team_id = st.number_input("Team ID",min_value=1,step=1)
+    # team_id = st.number_input("Team ID",min_value=1,step=1)
+    team_id = st.selectbox(
+        "Gründungsteam auswählen:",
+        options=list(team_options.keys()),
+        format_func=lambda x: team_options[x]
+    )
     bereich = st.text_input("Technischer Bereich")
     unternehmen = st.selectbox("Unternehmen bereits als Kapitalgesellschaft gegründet?",
                                options = ["Nein", "Ja"])
     #Dropdown für die Liste an Einrichtungen
     connection = get_connection()
-    cursor = connection.cursor()
-    cursor.execute("SELECT einrichtung_id, name FROM forschungseinrichtung")
-    einrichtung_liste = cursor.fetchall()
+    cursor = connection.cursor(dictionary=True)
+    current_user_id = st.session_state["ansprechpartner_id"]
+    sql_einrichtung = f"""
+                SELECT f.einrichtung_id, f.name 
+                FROM forschungseinrichtung f
+                JOIN ansprechpartner a ON f.einrichtung_id = a.einrichtung_id
+                WHERE a.ansprechpartner_id = {current_user_id}
+            """
+    cursor.execute(sql_einrichtung)
+    einrichtung_data = cursor.fetchone()
     cursor.close()
     connection.close()
-    einrichtung_dict = {
-        f"{row[0]} - {row[1]}": row[0]
-        for row in einrichtung_liste
-    }
-    selected_einrichtung_label = st.selectbox(
-        "ID & Einrichtung",
-        options=["Bitte wählen..."] + list(einrichtung_dict.keys())
-    )
-    if selected_einrichtung_label != "Bitte wählen...":
-        einrichtung_id= einrichtung_dict[selected_einrichtung_label]
+
+    if einrichtung_data:
+        einrichtung_id = einrichtung_data["einrichtung_id"]
+        st.text_input("Zugehörige Einrichtung", value=einrichtung_data["name"], disabled=True)
     else:
         einrichtung_id = None
+        st.error("Keine Einrichtung für diesen Ansprechpartner gefunden.")
     speichern = st.form_submit_button("Antrag einreichen")
 
 
