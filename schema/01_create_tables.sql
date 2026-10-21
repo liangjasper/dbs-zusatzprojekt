@@ -146,11 +146,11 @@ CREATE TABLE IF NOT EXISTS notiz (
     zeitstempel TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     inhalt TEXT NOT NULL,
     -- dateipfad VARCHAR(255),
-    dokument_id INT,
+    -- dokument_id INT,
 
     PRIMARY KEY (antrag_id, zeitstempel),
-    FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE,
-    FOREIGN KEY (dokument_id) REFERENCES dokumente(dokument_id) ON DELETE CASCADE
+    FOREIGN KEY (antrag_id) REFERENCES antrag (antrag_id) ON DELETE CASCADE
+    -- FOREIGN KEY (dokument_id) REFERENCES dokumente(dokument_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS antrag_status_historie (

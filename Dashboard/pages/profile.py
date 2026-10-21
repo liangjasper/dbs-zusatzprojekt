@@ -191,9 +191,19 @@ if st.session_state["rolle"] == "bearbeiter":
     connection.close()
     st.dataframe(daten, use_container_width=True)
 
+    antrag_options = {
+        row["antrag_id"]: f"{row['antrag_id']} - {row['gruendungstitel']}"
+        for row in daten
+    }
+
     st.title("Als Bearbeiter in Antrag eintragen")
     with st.form("bearbeiter_antrag_form"):
-        antrag_id = st.number_input("Antrags-ID eintragen",min_value=1,step=1)
+        # antrag_id = st.number_input("Antrags-ID eintragen",min_value=1,step=1)
+        antrag_id = st.selectbox(
+            "Wähle einen Antrag aus:",
+            options=list(antrag_options.keys()),
+            format_func=lambda x: antrag_options[x]
+        )
         submit = st.form_submit_button("Als Bearbeiter eintragen")
 
     if submit:
@@ -213,7 +223,13 @@ if st.session_state["rolle"] == "bearbeiter":
 
     st.title("Antragsstatus ändern")
     with st.form("antragstatus_aendern_form"):
-        antrag_id = st.number_input("Antrags-ID eintragen",min_value=1,step=1)
+        # antrag_id = st.number_input("Antrags-ID eintragen",min_value=1,step=1)
+        antrag_id_status = st.selectbox(
+            "Wähle einen Antrag aus:",
+            options=list(antrag_options.keys()),
+            format_func=lambda x: antrag_options[x],
+            key="status_antrag_select"
+        )
         status = st.selectbox(
             "Neuer Status",
             [
@@ -240,7 +256,13 @@ if st.session_state["rolle"] == "bearbeiter":
         st.rerun()
     st.title("Vollständige Anträge anzeigen lassen")
     with st.form("kompletten_antrag_form"):
-        antrag_id = st.number_input("Hier antrags_id eintragen", min_value=1,step=1)
+        # antrag_id = st.number_input("Hier antrags_id eintragen", min_value=1,step=1)
+        antrag_id_anzeigen = st.selectbox(
+            "Wähle einen Antrag aus:",
+            options=list(antrag_options.keys()),
+            format_func=lambda x: antrag_options[x],
+            key="komplett_antrag_select"
+        )
         submit= st.form_submit_button("Antrag anzeigen")
     if submit:
         st.session_state["antrag_id"] = antrag_id
@@ -276,21 +298,37 @@ if st.session_state["rolle"] == "bearbeiter":
 
     st.title("Notiz erstellen")
     with st.form("notiz_erstellen"):
-        notiz=st.text_input("Notiz schreiben")
-        antrag_id = st.number_input("Antrags-ID", min_value=1,step=1)
-        dokument_id = st.number_input("Dokument-ID", min_value=1, step=1)
+        notiz=st.text_area("Notiz schreiben")
+        # antrag_id = st.number_input("Antrags-ID", min_value=1,step=1)
+        antrag_id_notiz = st.selectbox(
+            "Wähle einen Antrag aus:",
+            options=list(antrag_options.keys()),
+            format_func=lambda x: antrag_options[x],
+            key="notiz_antrag_select"
+        )
+        # dokument_id = st.number_input("Dokument-ID (Optional, 0 = kein Dokument)", min_value=0, step=1)
         submit = st.form_submit_button("Notiz anlegen")
     if submit:
-        connection = get_connection()
-        cursor = connection.cursor()
-        sql = """
-              INSERT INTO notiz (antrag_id, inhalt, dokument) 
-              VALUE(%s, %s, %s)
-        """
-        cursor.execute(sql,(antrag_id, notiz, dokument_id))
-        connection.commit()
-        cursor.close()
-        connection.close()
+        if not notiz:
+            st.warning("Bitte schreibe eine Notiz!")
+        else:
+            connection = get_connection()
+            cursor = connection.cursor()
+            sql = """
+                  INSERT INTO notiz (antrag_id, zeitstempel, inhalt)
+                  VALUES (%s, CURRENT_TIMESTAMP, %s) \
+                  """
+            try:
+                cursor.execute(sql, (antrag_id_notiz, notiz))
+                connection.commit()
+                st.success("Notiz erfolgreich angelegt!")
+            except Exception as e:
+                st.error(f"Fehler beim Speichern: {e}")
+            finally:
+                cursor.close()
+                connection.close()
+            st.rerun()
+
     #Hier gibt es die Funktion einen neuen Mentor anzulegen
     st.title("Neuen Mentor anlegen")
     with st.form("mentor_form"):
