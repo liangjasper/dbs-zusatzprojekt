@@ -290,10 +290,10 @@ if st.session_state["rolle"] == "bearbeiter":
         )
         submit= st.form_submit_button("Antrag anzeigen")
     if submit:
-        st.session_state["antrag_id"] = antrag_id
+        st.session_state["antrag_id"] = antrag_id_anzeigen
 
     if "antrag_id" in st.session_state:
-        antrag, gruender, notiz, ansprechpartner, dokument = get_antrag(antrag_id)
+        antrag, gruender, notiz, ansprechpartner, dokument = get_antrag(st.session_state["antrag_id"])
         st.subheader("Antrag")
         st.dataframe(antrag, use_container_width=True)
 
